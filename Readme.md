@@ -3,9 +3,10 @@
 AdContainerView is a simple, lifecycle aware wrapper over Google AdMob's AdView (Banner Ad) which handles most of the stuff by itself.
 
 For the simplest use: 
-You just need to add `AdContainerView` in your layout, define `adUnitId`, `adSize` & that's it!
-`AdContainerView` hooks to your Activity's lifecycle process & handles AdView's lifecycle (Resume, Pause, Destroy Ad).
-This is most helpful when you just want to add a simple Banner Ad without much code.
+You just need to add `AdContainerView` in your layout, define `adUnitId`, `adSize` & that's it!\
+`AdContainerView` hooks to your Activity's lifecycle process & handles AdView's lifecycle (Resume, Pause, Destroy Ad).\
+This is most helpful when you just want to add a simple Banner Ad without much code.\
+
 ## Adding in your project:
 **Gradle**
 ```gradle
@@ -35,11 +36,11 @@ implementation 'com.lazygeniouz:acv:0.1.1'
 ```
 The attributes are as follows:
   - `acv_autoLoad`:
-    Default Value: `false`
+    Default Value is `false`\
     If `true`, the AdView will be loaded as soon as the Activity is created.
 
   - `acv_adSize`:
-    Default Value: `ADAPTIVE` which equals to `AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize()`
+    Default Value is `ADAPTIVE` which equals to `AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize()`\
     Define an AdSize for the the AdView, check [AdSize](https://developers.google.com/android/reference/com/google/android/gms/ads/AdSize#field-summary)
 
   - `acv_adUnitId`:
@@ -55,8 +56,9 @@ The attributes are as follows:
 ```
 **All Methods:**
  - `insertAdView(@NonNull adUnitId, adSize, adRequest)`:
-    The arguments `adSize` & `adRequest` are optional, the default value of parameter `adSize` is `ADAPTIVE`.
-    Optional `AdRequest` if you have customized request.
+    The arguments `adSize` & `adRequest` are optional\
+    The default value of parameter `adSize` is `ADAPTIVE`.\
+    Pass your `AdRequest` if you have a customized request.
  - `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise
  - `isVisible(): Boolean`: Returns `true` if the Ad is not null & visible, `false` otherwise
  - `getAdUnitId()`: Returns current `adUnitId`
