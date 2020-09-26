@@ -5,7 +5,7 @@ AdContainerView is a simple, lifecycle aware wrapper over Google AdMob's AdView 
 For the simplest use: 
 You just need to add `AdContainerView` in your layout, define `adUnitId`, `adSize` & that's it!\
 `AdContainerView` hooks to your Activity's lifecycle process & handles AdView's lifecycle (Resume, Pause, Destroy Ad).\
-This is most helpful when you just want to add a simple Banner Ad without much code.\
+This is most helpful when you just want to add a simple Banner Ad without much code.
 
 ## Adding in your project:
 **Gradle**
