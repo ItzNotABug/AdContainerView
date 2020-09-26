@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AdContainerView">
+        <attr name="acv_adUnitId" format="string" />
+        <attr name="acv_autoLoad" format="boolean" />
+        <attr name="acv_adSize" format="enum">
+            <enum name="ADAPTIVE" value="0" />
+            <enum name="SMART_BANNER" value="1" />
+            <enum name="BANNER" value="2" />
+            <enum name="FULL_BANNER" value="3" />
+            <enum name="LARGE_BANNER" value="4" />
+            <enum name="LEADERBOARD" value="5" />
+            <enum name="MEDIUM_RECTANGLE" value="6" />
+            <enum name="WIDE_SKYSCRAPER" value="7" />
+        </attr>
+    </declare-styleable>
+</resources>

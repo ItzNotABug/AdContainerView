@@ -1,0 +1,3 @@
+include ':acv'
+include ':app'
+rootProject.name = "AdContainerViewExample"
