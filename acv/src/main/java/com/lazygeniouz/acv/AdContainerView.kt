@@ -148,13 +148,19 @@ class AdContainerView @JvmOverloads constructor(
 
 
     //Make sure to call `insertAdView` to load the AdView again
-    fun removeAd() = destroyAd()
+    fun removeAd() {
+        destroyAd()
+    }
 
     /** @see AdView.resume */
-    fun resumeAd() = newAdView?.resume()
+    fun resumeAd() {
+        newAdView?.resume()
+    }
 
     /** @see AdView.pause */
-    fun pauseAd() = newAdView?.pause()
+    fun pauseAd() {
+        newAdView?.pause()
+    }
 
     /**
      * @see AdView.destroy
