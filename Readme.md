@@ -10,7 +10,7 @@ This is most helpful when you just want to add a simple Banner Ad without much c
 ## Adding in your project:
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.1.1'
+implementation 'com.lazygeniouz:acv:0.1.2'
 ```
 **Maven**
 ```xml
