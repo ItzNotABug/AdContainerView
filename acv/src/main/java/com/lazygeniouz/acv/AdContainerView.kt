@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.RelativeLayout
+import androidx.annotation.Keep
 import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -28,6 +29,7 @@ import com.google.android.gms.ads.*
  * respective lifecycle methods.
  *
  */
+@Keep
 class AdContainerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
