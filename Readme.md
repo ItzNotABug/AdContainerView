@@ -67,7 +67,7 @@ parentLayout.addView(adContainerView)
 
 *   `getAdSize()`: Returns current `adSize`.
 
-*   `setAdListener(listener: AdListener)`: You can use the AdView's default [`AdListener`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener)\
+*   `setAdListener(listener: AdListener)`: You can use the AdView's default [`AdListener`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener).
 
 *   `removeAd()`: Removes the AdView. Make sure to call `insertAdView()` to re-add `AdView`.
 
