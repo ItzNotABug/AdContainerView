@@ -1,9 +1,13 @@
+@file:Suppress("unused")
+
 package com.lazygeniouz.acv.example
 
 import android.app.Application
 import com.google.android.gms.ads.MobileAds
 
-@Suppress("unused")
+/**
+ * Let's initialize MobileAds in our Application
+ */
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
