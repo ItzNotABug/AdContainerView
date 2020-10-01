@@ -86,17 +86,7 @@ open class BaseAd @JvmOverloads constructor(
     // Get a simple & default AdRequest
     protected fun getAdRequest(): AdRequest = AdRequest.Builder().build()
 
-    /**
-     * We try to get the Adaptive AdSize
-     * @see AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize
-     * (https://developers.google.com/admob/android/banner/adaptive)
-     *
-     * However,
-     * due to any reason (say, context isn't a FragmentActivity or anything else),
-     * return AdSize.SMART_BANNER
-     * @see AdSize.SMART_BANNER
-     * (https://developers.google.com/admob/android/banner/smart)
-     */
+    // Get the Adaptive AdSize, if possible, AdSize.SMART_BANNER otherwise
     private fun getAdaptiveAdSize(): AdSize {
         return if (context is FragmentActivity) {
             val display = (context as FragmentActivity).windowManager.defaultDisplay
@@ -113,19 +103,6 @@ open class BaseAd @JvmOverloads constructor(
         } else AdSize.SMART_BANNER
     }
 
-    /**
-     * Not all AdSize work properly as some are considered as Legacy AdSizes.
-     * @see AdSize.FLUID
-     * @see AdSize.FULL_BANNER
-     * @see AdSize.LEADERBOARD
-     * @see AdSize.WIDE_SKYSCRAPER
-     *
-     * The so called 'Legacy AdSizes' are not
-     * marked as @deprecated but most of the times do not return an Ad.
-     *
-     * It is highly recommended to use other active formats
-     * which won't affect your revenue because of low fill rate.
-     */
     private fun getAdSize(typedArrayValue: Int): AdSize {
         return when (typedArrayValue) {
             0 -> getAdaptiveAdSize()
