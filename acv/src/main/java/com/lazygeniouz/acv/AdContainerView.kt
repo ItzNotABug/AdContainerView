@@ -2,16 +2,13 @@
 
 package com.lazygeniouz.acv
 
-import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.widget.RelativeLayout
 import androidx.annotation.Keep
 import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
@@ -19,52 +16,31 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.gms.ads.*
+import com.lazygeniouz.acv.base.BaseAd
 
 
 /**
- * A RelativeLayout Container to Handle
+ * A Container over BaseAd to Handle
+ * @see BaseAd
  * @see com.google.android.gms.ads.AdView
  *
  * Handles and calls AdView's
  * respective lifecycle methods.
  *
+ * We add a @Keep annotation because there are chances
+ * when the user only adds this inside the XML Layout,
+ * and either Proguard or R8 might remove this class.
  */
 @Keep
 class AdContainerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr) {
-
-    private val tag = javaClass.simpleName
-
-    private var adUnitId = ""
-    private var adSize = AdSize.SMART_BANNER
-    private var autoLoad = false
-    private var listener: AdListener? = null
-
-    private var newAdView: AdView? = null
+) : BaseAd(context, attrs, defStyleAttr) {
 
     init {
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.AdContainerView,
-            0,
-            0
-        ).apply {
-            try {
-                adUnitId = getString(R.styleable.AdContainerView_acv_adUnitId)
-                    ?: ""
-                autoLoad = getBoolean(R.styleable.AdContainerView_acv_autoLoad, false)
-                adSize = getAdSize(getInt(R.styleable.AdContainerView_acv_adSize, 0))
-            } finally {
-                recycle()
-            }
-        }
-
         // It `should` be a FragmentActivity Instance!
         // For Fragment, afaik, the Host Activity's instance will be used by default.
         if (context is FragmentActivity) context.lifecycle.addObserver(HostActivityObserver())
         else throw IllegalArgumentException("The supplied Context is not an instance of FragmentActivity")
-        layoutTransition = LayoutTransition()
     }
 
     /**
@@ -128,28 +104,10 @@ class AdContainerView @JvmOverloads constructor(
         newAdView!!.loadAd(adRequest)
     }
 
-    fun isLoading() = newAdView?.isLoading ?: false
-
-    fun isVisible() = newAdView?.visibility == View.VISIBLE
-
-    fun getAdUnitId() = adUnitId
-
-    fun getAdSize(): AdSize = adSize
-
     /**
-     * Listener for Banner Ads
-     * There is no need to create another class, add methods & bloat.
-     * AdView's own AdListener is fine.
-     *
-     * @param listener
-     * @see AdView.setAdListener
+     * Removes / Destroys the Ad from the View
+     * Make sure to call `insertAdView` to load the AdView again
      */
-    fun setAdListener(listener: AdListener) {
-        this.listener = listener
-    }
-
-
-    //Make sure to call `insertAdView` to load the AdView again
     fun removeAd() {
         destroyAd()
     }
@@ -180,78 +138,15 @@ class AdContainerView @JvmOverloads constructor(
         removeAllViews()
     }
 
-    // Get a simple & default AdRequest
-    private fun getAdRequest() = AdRequest.Builder().build()
-
-    /**
-     * We try to get the Adaptive AdSize
-     * @see AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize
-     * (https://developers.google.com/admob/android/banner/adaptive)
-     *
-     * However,
-     * due to any reason (say, context isn't a FragmentActivity or anything else),
-     * return AdSize.SMART_BANNER
-     * @see AdSize.SMART_BANNER
-     * (https://developers.google.com/admob/android/banner/smart)
-     */
-    private fun getAdaptiveAdSize(): AdSize {
-        return if (context is FragmentActivity) {
-            val display = (context as FragmentActivity).windowManager.defaultDisplay
-            val outMetrics = DisplayMetrics()
-
-            display.getMetrics(outMetrics)
-            val density = outMetrics.density
-            val adWidthPixels = outMetrics.widthPixels.toFloat()
-
-            val adWidth = (adWidthPixels / density).toInt()
-            val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
-            Log.d(tag, "AdSize: Adaptive Banner")
-            return adSize
-        } else AdSize.SMART_BANNER
-    }
-
-    /**
-     * Not all AdSize work properly as some are considered as Legacy AdSizes.
-     * @see AdSize.FLUID
-     * @see AdSize.FULL_BANNER
-     * @see AdSize.LEADERBOARD
-     * @see AdSize.WIDE_SKYSCRAPER
-     *
-     * The so called 'Legacy AdSizes' are not
-     * marked as @deprecated but most of the times do not return an Ad.
-     *
-     * It is highly recommended to use other active formats
-     * which won't affect your revenue because of low fill rate.
-     */
-    private fun getAdSize(typedArrayValue: Int): AdSize {
-        return when (typedArrayValue) {
-            0 -> getAdaptiveAdSize()
-            1 -> AdSize.SMART_BANNER
-            2 -> AdSize.BANNER
-            3 -> AdSize.FULL_BANNER
-            4 -> AdSize.LARGE_BANNER
-            5 -> AdSize.LEADERBOARD
-            6 -> AdSize.MEDIUM_RECTANGLE
-            7 -> AdSize.WIDE_SKYSCRAPER
-            else -> throw IllegalArgumentException(
-                "Currently Supported AdSizes are: " +
-                        "ADAPTIVE, " +
-                        "SMART_BANNER, " +
-                        "BANNER, " +
-                        "FULL_BANNER, " +
-                        "LARGE_BANNER, " +
-                        "LEADERBOARD, " +
-                        "MEDIUM_RECTANGLE, " +
-                        "WIDE_SKYSCRAPER"
-            )
-        }
-    }
-
     override fun onDetachedFromWindow() {
         destroyAd()
         super.onDetachedFromWindow()
     }
 
+
+    /**
+     * Observer to call AdView's respective methods on appropriate Lifecycle event
+     */
     private inner class HostActivityObserver : LifecycleObserver {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -264,20 +159,20 @@ class AdContainerView @JvmOverloads constructor(
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         fun pause() {
-            Log.d(tag, "pauseAd()")
             pauseAd()
+            Log.d(tag, "pauseAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun destroy() {
-            Log.d(tag, "destroyAd()")
             destroyAd()
+            Log.d(tag, "destroyAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         fun resume() {
-            Log.d(tag, "resumeAd()")
             resumeAd()
+            Log.d(tag, "resumeAd()")
         }
     }
 }
