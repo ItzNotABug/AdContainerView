@@ -59,7 +59,6 @@ parentLayout.addView(adContainerView)
     The default value of parameter `adSize` is `ADAPTIVE`.\
     Pass your `AdRequest` if you have a customized request.
     
-    
 *   `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
 
 *   `isVisible(): Boolean`: Returns `true` if the Ad is not null & visible, `false` otherwise.
