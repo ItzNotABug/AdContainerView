@@ -7,7 +7,7 @@ You just need to add `AdContainerView` in your layout, define `adUnitId`, `adSiz
 `AdContainerView` hooks to your Activity's lifecycle process & handles AdView's lifecycle (Resume, Pause, Destroy Ad).\
 This is most helpful when you just want to add a simple Banner Ad without any boilerplate.
 
-## Adding in your project:
+## Adding in your project
 **Gradle**
 ```gradle
 implementation 'com.lazygeniouz:acv:0.1.2'
@@ -22,8 +22,7 @@ implementation 'com.lazygeniouz:acv:0.1.2'
 </dependency>
 ```
 
-
-## Usage:
+## Using `AdContainerView`
 ### The same old XML Way
 ```xml
     <com.lazygeniouz.acv.AdContainerView
@@ -59,12 +58,21 @@ parentLayout.addView(adContainerView)
     The arguments `adSize` & `adRequest` are optional\
     The default value of parameter `adSize` is `ADAPTIVE`.\
     Pass your `AdRequest` if you have a customized request.
+    
 *   `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
+
 *   `isVisible(): Boolean`: Returns `true` if the Ad is not null & visible, `false` otherwise.
+
 *   `getAdUnitId()`: Returns current `adUnitId`.
+
 *   `getAdSize()`: Returns current `adSize`.
+
 *   `setAdListener(listener: AdListener)`: You can use the AdView's default [`AdListener`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener)\
+
 *   `removeAd()`: Removes the AdView. Make sure to call `insertAdView()` to re-add `AdView`.
+
 *   `resumeAd()`: Resumes AdView **(Handled automatically)**
+
 *   `pauseAd()`: Pauses AdView **(Handled automatically)**
+
 *   `destroyAd()`: Destroys AdView **(Handled automatically)**
