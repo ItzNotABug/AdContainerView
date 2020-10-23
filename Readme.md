@@ -1,5 +1,7 @@
 # AdContainerView
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/685458c0953f4dd0b84956383b491f29)](https://app.codacy.com/gh/ItzNotABug/AdContainerView?utm_source=github.com&utm_medium=referral&utm_content=ItzNotABug/AdContainerView&utm_campaign=Badge_Grade_Settings)
+
 AdContainerView is a simple, lifecycle aware wrapper over Google AdMob's AdView (Banner Ad) which handles most of the stuff by itself.
 
 For the simplest use:\
