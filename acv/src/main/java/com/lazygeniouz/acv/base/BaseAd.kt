@@ -1,10 +1,11 @@
+@file:Suppress("unused")
+
 package com.lazygeniouz.acv.base
 
 import android.animation.LayoutTransition
 import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.fragment.app.FragmentActivity
@@ -18,6 +19,7 @@ import com.lazygeniouz.acv.R
  * A Base Container class to Handle
  * @see com.google.android.gms.ads.AdView
  */
+
 open class BaseAd @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
@@ -83,6 +85,11 @@ open class BaseAd @JvmOverloads constructor(
      */
     fun getAdSize(): AdSize = adSize
 
+    /**
+     * Return autoLoad value
+     */
+    fun isAutoLoad() = autoLoad
+
     // Get a simple & default AdRequest
     protected fun getAdRequest(): AdRequest = AdRequest.Builder().build()
 
@@ -97,9 +104,7 @@ open class BaseAd @JvmOverloads constructor(
             val adWidthPixels = outMetrics.widthPixels.toFloat()
 
             val adWidth = (adWidthPixels / density).toInt()
-            val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
-            Log.d(tag, "AdSize: Adaptive Banner")
-            return adSize
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
         } else AdSize.SMART_BANNER
     }
 

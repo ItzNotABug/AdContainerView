@@ -1,10 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-apply from: '../install.gradle'
-apply from: '../bintray.gradle'
-
-
 android {
     compileSdkVersion 29
 
@@ -13,7 +9,7 @@ android {
         //noinspection OldTargetApi
         targetSdkVersion 29
         versionCode 1
-        versionName "0.1.1"
+        versionName "0.1.4"
     }
 
     buildTypes {
@@ -27,5 +23,8 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.google.android.gms:play-services-ads:19.4.0'
+    implementation 'com.google.android.gms:play-services-ads:19.5.0'
 }
+
+apply from: '../install.gradle'
+apply from: '../bintray.gradle'

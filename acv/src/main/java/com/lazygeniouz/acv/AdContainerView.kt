@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused")
-
 package com.lazygeniouz.acv
 
 import android.content.Context
@@ -17,7 +15,6 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.gms.ads.*
 import com.lazygeniouz.acv.base.BaseAd
-
 
 /**
  * A Container over BaseAd to Handle
@@ -44,13 +41,14 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     /**
-     * @insertAdView = Loads and Adds the `AdView` in the View
+     * [insertAdView] Loads and Adds the `AdView` in the View
      *
-     * @param adUnitId = The AdUnitId of your banner ad, default is test adUnitId
-     * @param adSize = The AdSize of the Banner Ad
-     * @param adRequest = Optional AdRequest if you have customized request.
+     * @param adUnitId The AdUnitId of your banner ad, default is test adUnitId
+     * @param adSize The AdSize of the Banner Ad
+     * @param adRequest Optional AdRequest if you have customized request.
      *
      **/
+    @JvmOverloads
     fun insertAdView(
         @NonNull adUnitId: String = this.adUnitId,
         adSize: AdSize = this.adSize,
@@ -105,9 +103,10 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     /**
-     * Removes / Destroys the Ad from the View
-     * Make sure to call `insertAdView` to load the AdView again
+     * Removes / Destroys the Ad from the View.
+     * Make sure to call [insertAdView()] to load & add the AdView again
      */
+    @Suppress("unused")
     fun removeAd() {
         destroyAd()
     }
@@ -150,7 +149,7 @@ class AdContainerView @JvmOverloads constructor(
     private inner class HostActivityObserver : LifecycleObserver {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        fun onCreate() {
+        private fun onCreate() {
             if (autoLoad) {
                 insertAdView(adUnitId, adSize)
                 Log.d(tag, "onCreate()")
@@ -158,19 +157,19 @@ class AdContainerView @JvmOverloads constructor(
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        fun pause() {
+        private fun pause() {
             pauseAd()
             Log.d(tag, "pauseAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        fun destroy() {
+        private fun destroy() {
             destroyAd()
             Log.d(tag, "destroyAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        fun resume() {
+        private fun resume() {
             resumeAd()
             Log.d(tag, "resumeAd()")
         }
