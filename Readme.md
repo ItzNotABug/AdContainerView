@@ -10,16 +10,19 @@ You just need to add `AdContainerView` in your layout, define `adUnitId`, `adSiz
 This is most helpful when you just want to add a simple Banner Ad without any boilerplate.
 
 ## Adding in your project
+`AdContainerView` is now on `mavenCentral()`,\
+Make sure to add that to your repositories block.
+
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.1.2'
+implementation 'com.lazygeniouz:acv:0.1.4'
 ```
 **Maven**
 ```xml
 <dependency>
   <groupId>com.lazygeniouz</groupId>
   <artifactId>acv</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.4</version>
   <type>pom</type>
 </dependency>
 ```
