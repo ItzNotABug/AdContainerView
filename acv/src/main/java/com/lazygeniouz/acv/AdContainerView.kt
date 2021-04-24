@@ -54,7 +54,10 @@ class AdContainerView @JvmOverloads constructor(
         adSize: AdSize = this.adSize,
         adRequest: AdRequest = this.getAdRequest()
     ) {
-        if (adUnitId.isEmpty()) throw IllegalArgumentException("The adUnitId cannot be blank or null")
+        if (adUnitId.isEmpty()) throw IllegalArgumentException(
+            "The adUnitId cannot be blank or null. " +
+                    "Use `AdContainerView.TEST_AD_ID` for Testing"
+        )
         removeAllViews()
         newAdView = AdView(context)
         newAdView!!.visibility = View.GONE
@@ -72,10 +75,6 @@ class AdContainerView @JvmOverloads constructor(
 
             override fun onAdClosed() {
                 listener?.onAdClosed()
-            }
-
-            override fun onAdLeftApplication() {
-                listener?.onAdLeftApplication()
             }
 
             override fun onAdOpened() {
@@ -142,6 +141,9 @@ class AdContainerView @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
+    companion object {
+        const val TEST_AD_ID = "ca-app-pub-3940256099942544/6300978111"
+    }
 
     /**
      * Observer to call AdView's respective methods on appropriate Lifecycle event

@@ -1,9 +1,10 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "DEPRECATION")
 
 package com.lazygeniouz.acv.base
 
 import android.animation.LayoutTransition
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.View
@@ -14,6 +15,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.lazygeniouz.acv.R
+
 
 /**
  * A Base Container class to Handle
@@ -96,10 +98,13 @@ open class BaseAd @JvmOverloads constructor(
     // Get the Adaptive AdSize, if possible, AdSize.SMART_BANNER otherwise
     private fun getAdaptiveAdSize(): AdSize {
         return if (context is FragmentActivity) {
-            val display = (context as FragmentActivity).windowManager.defaultDisplay
             val outMetrics = DisplayMetrics()
+            val display =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) context.display
+                else (context as FragmentActivity).windowManager.defaultDisplay
 
-            display.getMetrics(outMetrics)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display?.getRealMetrics(outMetrics)
+            else display?.getMetrics(outMetrics)
             val density = outMetrics.density
             val adWidthPixels = outMetrics.widthPixels.toFloat()
 
