@@ -15,14 +15,14 @@ Make sure to add that to your repositories block.
 
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.1.6'
+implementation 'com.lazygeniouz:acv:0.2.0'
 ```
 **Maven**
 ```xml
 <dependency>
   <groupId>com.lazygeniouz</groupId>
   <artifactId>acv</artifactId>
-  <version>0.1.6</version>
+  <version>0.2.0</version>
   <type>pom</type>
 </dependency>
 ```
