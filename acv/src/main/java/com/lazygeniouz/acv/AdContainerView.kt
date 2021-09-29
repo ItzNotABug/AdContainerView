@@ -54,10 +54,11 @@ class AdContainerView @JvmOverloads constructor(
         adSize: AdSize = this.adSize,
         adRequest: AdRequest = this.getAdRequest()
     ) {
-        if (adUnitId.isEmpty()) throw IllegalArgumentException(
-            "The adUnitId cannot be blank or null. " +
-                    "Use `AdContainerView.TEST_AD_ID` for Testing"
+        if (adUnitId == TEST_AD_ID) Log.i(
+            tag,
+            "Current adUnitId is a Test Ad Unit, make sure to use your own in Production"
         )
+
         removeAllViews()
         newAdView = AdView(context)
         newAdView!!.visibility = View.GONE
@@ -88,10 +89,6 @@ class AdContainerView @JvmOverloads constructor(
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 listener?.onAdFailedToLoad(error)
-
-                // Currently removing below coz
-                // we don't want to hide the Ad if a 2nd refresh was failed
-                //newAdView!!.visibility = View.GONE
             }
         }
 
@@ -106,19 +103,13 @@ class AdContainerView @JvmOverloads constructor(
      * Make sure to call [insertAdView()] to load & add the AdView again
      */
     @Suppress("unused")
-    fun removeAd() {
-        destroyAd()
-    }
+    fun removeAd() = destroyAd()
 
     /** @see AdView.resume */
-    fun resumeAd() {
-        newAdView?.resume()
-    }
+    fun resumeAd() = newAdView?.resume()
 
     /** @see AdView.pause */
-    fun pauseAd() {
-        newAdView?.pause()
-    }
+    fun pauseAd() = newAdView?.pause()
 
     /**
      * @see AdView.destroy

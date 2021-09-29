@@ -14,11 +14,12 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.lazygeniouz.acv.AdContainerView
 import com.lazygeniouz.acv.R
 
 
 /**
- * A Base Container class to Handle
+ * A Base Container class to Handle [AdView]
  * @see com.google.android.gms.ads.AdView
  */
 
@@ -28,9 +29,9 @@ open class BaseAd @JvmOverloads constructor(
 
     internal val tag = javaClass.simpleName
 
-    internal var adUnitId = ""
     protected var autoLoad = false
     internal var adSize: AdSize = AdSize.SMART_BANNER
+    internal var adUnitId = AdContainerView.TEST_AD_ID
 
     protected var listener: AdListener? = null
     protected var newAdView: AdView? = null
@@ -44,7 +45,7 @@ open class BaseAd @JvmOverloads constructor(
         ).apply {
             try {
                 adUnitId = getString(R.styleable.AdContainerView_acv_adUnitId)
-                    ?: ""
+                    ?: AdContainerView.TEST_AD_ID
                 autoLoad = getBoolean(R.styleable.AdContainerView_acv_autoLoad, false)
                 adSize = getAdSize(getInt(R.styleable.AdContainerView_acv_adSize, 0))
             } finally {
