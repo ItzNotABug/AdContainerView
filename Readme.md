@@ -15,14 +15,14 @@ Make sure to add that to your repositories block.
 
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.2.0'
+implementation 'com.lazygeniouz:acv:0.2.1'
 ```
 **Maven**
 ```xml
 <dependency>
   <groupId>com.lazygeniouz</groupId>
   <artifactId>acv</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <type>pom</type>
 </dependency>
 ```
@@ -65,6 +65,8 @@ parentLayout.addView(adContainerView)
     Pass your `AdRequest` if you have a customized request.
     
 *   `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
+
+*   `isAdLoaded(): Boolean`: Returns `true` if the Ad is loaded, `false` otherwise.
 
 *   `isVisible(): Boolean`: Returns `true` if the Ad is not null & visible, `false` otherwise.
 

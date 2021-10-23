@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.View
 import android.widget.RelativeLayout
+import androidx.annotation.Keep
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -23,6 +24,7 @@ import com.lazygeniouz.acv.R
  * @see com.google.android.gms.ads.AdView
  */
 
+@Keep
 open class BaseAd @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
@@ -30,6 +32,7 @@ open class BaseAd @JvmOverloads constructor(
     internal val tag = javaClass.simpleName
 
     protected var autoLoad = false
+    internal var isAdLoaded = false
     internal var adSize: AdSize = AdSize.SMART_BANNER
     internal var adUnitId = AdContainerView.TEST_AD_ID
 
@@ -67,6 +70,11 @@ open class BaseAd @JvmOverloads constructor(
     fun setAdListener(listener: AdListener) {
         this.listener = listener
     }
+
+    /**
+     * Return whether the Ad is loaded or not
+     */
+    fun isAdLoaded(): Boolean = isAdLoaded
 
     /**
      * Return the Ad's Loading State.

@@ -83,12 +83,14 @@ class AdContainerView @JvmOverloads constructor(
             }
 
             override fun onAdLoaded() {
+                isAdLoaded = true
                 newAdView!!.visibility = View.VISIBLE
                 listener?.onAdLoaded()
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 listener?.onAdFailedToLoad(error)
+                isAdLoaded = false
             }
         }
 
@@ -124,6 +126,7 @@ class AdContainerView @JvmOverloads constructor(
     fun destroyAd() {
         newAdView?.destroy()
         newAdView = null
+        isAdLoaded = false
         removeAllViews()
     }
 
