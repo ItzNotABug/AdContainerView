@@ -30,6 +30,8 @@ open class BaseAd @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyleAttr) {
 
     internal val tag = javaClass.simpleName
+    internal val showOnConditionMessage =
+        "showOnCondition lambda returned false, AdContainerView will not load an Ad."
 
     protected var autoLoad = false
     internal var isAdLoaded = false
@@ -74,7 +76,7 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Return whether the Ad is loaded or not
      */
-    fun isAdLoaded(): Boolean = isAdLoaded
+    fun isAdLoaded() = isAdLoaded
 
     /**
      * Return the Ad's Loading State.

@@ -59,10 +59,18 @@ parentLayout.addView(adContainerView)
 // And thats it!
 ```
 **All Methods:**
-*   `insertAdView(@NonNull adUnitId, adSize, adRequest)`:\
-    The arguments `adSize` & `adRequest` are optional\
-    The default value of parameter `adSize` is `ADAPTIVE`.\
-    Pass your `AdRequest` if you have a customized request.
+```kotlin
+fun insertAdView(
+  @NonNull adUnitId: String,
+  adSize: AdSize,
+  adRequest: AdRequest),
+  showOnCondition: (() -> Boolean)? = null
+)
+```
+The arguments `adSize` & `adRequest` are optional\
+The default value of parameter `adSize` is `ADAPTIVE`.\
+Pass your `AdRequest` if you have a customized request.\
+Pass you condition to evaluate whether to show the Ad or not (Default is Null).
     
 *   `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
 

@@ -52,12 +52,23 @@ class AdContainerView @JvmOverloads constructor(
     fun insertAdView(
         @NonNull adUnitId: String = this.adUnitId,
         adSize: AdSize = this.adSize,
-        adRequest: AdRequest = this.getAdRequest()
+        adRequest: AdRequest = this.getAdRequest(),
+        showOnCondition: (() -> Boolean)? = null
     ) {
         if (adUnitId == TEST_AD_ID) Log.i(
-            tag,
-            "Current adUnitId is a Test Ad Unit, make sure to use your own in Production"
+            tag, "Current adUnitId is a Test Ad Unit, make sure to use your own in Production"
         )
+
+        if (showOnCondition?.invoke() == false) {
+            Log.d(tag, showOnConditionMessage)
+            listener?.onAdFailedToLoad(
+                LoadAdError(
+                    -1, showOnConditionMessage,
+                    tag, null, null
+                )
+            )
+            return
+        }
 
         removeAllViews()
         newAdView = AdView(context)
