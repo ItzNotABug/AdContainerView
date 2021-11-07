@@ -1,14 +1,11 @@
 package com.lazygeniouz.acv
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.Keep
-import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -17,9 +14,7 @@ import com.google.android.gms.ads.*
 import com.lazygeniouz.acv.base.BaseAd
 
 /**
- * A Container over BaseAd to Handle
- * @see BaseAd
- * @see com.google.android.gms.ads.AdView
+ * A Container over BaseAd to Handle [AdView] via [BaseAd]
  *
  * Handles and calls AdView's
  * respective lifecycle methods.
@@ -37,24 +32,33 @@ class AdContainerView @JvmOverloads constructor(
         // It `should` be a FragmentActivity Instance!
         // For Fragment, afaik, the Host Activity's instance will be used by default.
         if (context is FragmentActivity) context.lifecycle.addObserver(HostActivityObserver())
-        else throw IllegalArgumentException("The supplied Context is not an instance of FragmentActivity")
+        else Log.d(
+            tag,
+            "The supplied Context is not an instance of FragmentActivity. " +
+                    "Make sure to call the resume, pause, destroy lifecycle methods."
+        )
     }
 
     /**
-     * [insertAdView] Loads and Adds the `AdView` in the View
+     * [loadAdView] Loads and Adds the `AdView` in the View
      *
-     * @param adUnitId The AdUnitId of your banner ad, default is test adUnitId
+     * @param adUnitId The AdUnitId of your banner ad, default is Test Ad Unit Id
      * @param adSize The AdSize of the Banner Ad
      * @param adRequest Optional AdRequest if you have customized request.
+     * @param parentHasListView Prevents Ad detach inside a Scrollable View
+     * @param showOnCondition Load Ad only when this lambda returns True
      *
      **/
-    @JvmOverloads
-    fun insertAdView(
-        @NonNull adUnitId: String = this.adUnitId,
+    fun loadAdView(
+        adUnitId: String = this.adUnitId,
         adSize: AdSize = this.adSize,
         adRequest: AdRequest = this.getAdRequest(),
+        parentHasListView: Boolean = false,
         showOnCondition: (() -> Boolean)? = null
     ) {
+
+        parentMayHaveAListView = parentHasListView
+
         if (adUnitId == TEST_AD_ID) Log.i(
             tag, "Current adUnitId is a Test Ad Unit, make sure to use your own in Production"
         )
@@ -71,68 +75,78 @@ class AdContainerView @JvmOverloads constructor(
         }
 
         removeAllViews()
-        newAdView = AdView(context)
-        newAdView!!.visibility = View.GONE
-        newAdView!!.background = ColorDrawable(Color.TRANSPARENT)
-        newAdView!!.adUnitId = adUnitId
-        newAdView!!.adSize = adSize
-        newAdView!!.adListener = object : AdListener() {
-            override fun onAdClicked() {
-                listener?.onAdClicked()
-            }
 
-            override fun onAdImpression() {
-                listener?.onAdImpression()
-            }
+        newAdView = AdView(context).also { newAdView ->
+            newAdView.visibility = View.GONE
+            newAdView.background = transparent
+            newAdView.adUnitId = adUnitId
+            newAdView.adSize = adSize
+            newAdView.adListener = object : AdListener() {
+                override fun onAdClicked() {
+                    listener?.onAdClicked()
+                }
 
-            override fun onAdClosed() {
-                listener?.onAdClosed()
-            }
+                override fun onAdImpression() {
+                    listener?.onAdImpression()
+                }
 
-            override fun onAdOpened() {
-                listener?.onAdOpened()
-            }
+                override fun onAdClosed() {
+                    listener?.onAdClosed()
+                }
 
-            override fun onAdLoaded() {
-                isAdLoaded = true
-                newAdView!!.visibility = View.VISIBLE
-                listener?.onAdLoaded()
-            }
+                override fun onAdOpened() {
+                    listener?.onAdOpened()
+                }
 
-            override fun onAdFailedToLoad(error: LoadAdError) {
-                listener?.onAdFailedToLoad(error)
-                isAdLoaded = false
+                override fun onAdLoaded() {
+                    isAdLoaded = true
+                    newAdView.visibility = View.VISIBLE
+                    listener?.onAdLoaded()
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    listener?.onAdFailedToLoad(error)
+                    isAdLoaded = false
+                }
             }
         }
 
         removeAllViews()
         addView(newAdView)
-        newAdView!!.layoutParams.apply { gravity = Gravity.CENTER }
-        newAdView!!.loadAd(adRequest)
+        newAdView?.let { adView ->
+            adView.layoutParams.apply { gravity = Gravity.CENTER }
+            adView.loadAd(adRequest)
+        }
     }
 
     /**
      * Removes / Destroys the Ad from the View.
-     * Make sure to call [insertAdView()] to load & add the AdView again
+     *
+     * Make sure to call [loadAdView] to load & add the AdView again
      */
     @Suppress("unused")
     fun removeAd() = destroyAd()
 
-    /** @see AdView.resume */
+    /**
+     * Same as [AdView.resume]
+     */
     fun resumeAd() = newAdView?.resume()
 
-    /** @see AdView.pause */
+    /**
+     * Same as [AdView.pause]
+     */
     fun pauseAd() = newAdView?.pause()
 
     /**
-     * @see AdView.destroy
      *
-     * Avoiding this issue: `#004 The webview is destroyed. Ignoring action.`
-     * by using `newAdView = null` or `removeAllViews()`
+     * Avoiding this issue: "**#004 The webview is destroyed. Ignoring action.**"
+     * by using `newAdView = null` or `removeAllViews()`.
+     *
      * It is found that the above info. is printed in 2 scenarios.
-     *
      * 1. when the Ad refreshes,
      * 2. when the Activity is destroyed.
+     *
+     * Same as [AdView.destroy]
      **/
     fun destroyAd() {
         newAdView?.destroy()
@@ -141,9 +155,16 @@ class AdContainerView @JvmOverloads constructor(
         removeAllViews()
     }
 
+    /**
+     * A boolean check is necessary to check if any ViewGroup in the hierarchy is a Scrollable View
+     * like RecyclerView, ListView, GridView, etc.
+     *
+     * It is better to use a boolean provided by the developer first hand as manually looping over
+     * the View hierarchy is **not** memory efficient and also not a good practice.
+     */
     override fun onDetachedFromWindow() {
-        destroyAd()
         super.onDetachedFromWindow()
+        if (!parentMayHaveAListView) destroyAd()
     }
 
     companion object {
@@ -158,7 +179,7 @@ class AdContainerView @JvmOverloads constructor(
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
         private fun onCreate() {
             if (autoLoad) {
-                insertAdView(adUnitId, adSize)
+                loadAdView(adUnitId, adSize)
                 Log.d(tag, "onCreate()")
             }
         }

@@ -4,6 +4,8 @@ package com.lazygeniouz.acv.base
 
 import android.animation.LayoutTransition
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -37,6 +39,9 @@ open class BaseAd @JvmOverloads constructor(
     internal var isAdLoaded = false
     internal var adSize: AdSize = AdSize.SMART_BANNER
     internal var adUnitId = AdContainerView.TEST_AD_ID
+
+    internal var parentMayHaveAListView: Boolean = false
+    internal val transparent = ColorDrawable(Color.TRANSPARENT)
 
     protected var listener: AdListener? = null
     protected var newAdView: AdView? = null
