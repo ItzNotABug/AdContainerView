@@ -80,7 +80,7 @@ class AdContainerView @JvmOverloads constructor(
             newAdView.visibility = View.GONE
             newAdView.background = transparent
             newAdView.adUnitId = adUnitId
-            newAdView.adSize = adSize
+            newAdView.setAdSize(adSize)
             newAdView.adListener = object : AdListener() {
                 override fun onAdClicked() {
                     listener?.onAdClicked()

@@ -15,7 +15,7 @@ Make sure to add that to your repositories block.
 
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.2.8'
+implementation 'com.lazygeniouz:acv:0.3.0'
 ```
 **Maven**
 ```xml
