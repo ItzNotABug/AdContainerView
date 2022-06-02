@@ -23,7 +23,7 @@ implementation 'com.lazygeniouz:acv:0.3.0'
   <groupId>com.lazygeniouz</groupId>
   <artifactId>acv</artifactId>
   <version>0.2.8</version>
-  <type>pom</type>
+  <type>aar</type>
 </dependency>
 ```
 
