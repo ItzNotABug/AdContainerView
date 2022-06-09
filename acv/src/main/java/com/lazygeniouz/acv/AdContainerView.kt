@@ -1,6 +1,7 @@
 package com.lazygeniouz.acv
 
 import android.content.Context
+import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
@@ -31,12 +32,12 @@ class AdContainerView @JvmOverloads constructor(
     init {
         // It `should` be a FragmentActivity Instance!
         // For Fragment, afaik, the Host Activity's instance will be used by default.
-        if (context is FragmentActivity) context.lifecycle.addObserver(HostActivityObserver())
-        else Log.d(
-            tag,
-            "The supplied Context is not an instance of FragmentActivity. " +
-                    "Make sure to call the resume, pause, destroy lifecycle methods."
-        )
+        if (context is FragmentActivity) {
+            if (isMainThread()) {
+                // `addObserver` only on MainThread
+                context.lifecycle.addObserver(HostActivityObserver())
+            } else logDebug("Current thread is not main-thread, not adding lifecycle observer. $makeSureToHandleLifecycleMessage")
+        } else logDebug("The supplied Context is not an instance of FragmentActivity. $makeSureToHandleLifecycleMessage")
     }
 
     /**
@@ -59,18 +60,13 @@ class AdContainerView @JvmOverloads constructor(
 
         parentMayHaveAListView = parentHasListView
 
-        if (adUnitId == TEST_AD_ID) Log.i(
-            tag, "Current adUnitId is a Test Ad Unit, make sure to use your own in Production"
-        )
+        if (adUnitId == TEST_AD_ID) {
+            logInfo("Current adUnitId is a Test Ad Unit, make sure to use your own in Production")
+        }
 
         if (showOnCondition?.invoke() == false) {
-            Log.d(tag, showOnConditionMessage)
-            listener?.onAdFailedToLoad(
-                LoadAdError(
-                    -1, showOnConditionMessage,
-                    tag, null, null
-                )
-            )
+            logDebug(showOnConditionMessage)
+            listener?.onAdFailedToLoad(LoadAdError(-1, showOnConditionMessage, TAG, null, null))
             return
         }
 
@@ -117,6 +113,10 @@ class AdContainerView @JvmOverloads constructor(
             adView.layoutParams.apply { gravity = Gravity.CENTER }
             adView.loadAd(adRequest)
         }
+    }
+
+    private fun isMainThread(): Boolean {
+        return Thread.currentThread() == Looper.getMainLooper().thread
     }
 
     /**
@@ -168,7 +168,11 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     companion object {
+        const val TAG = "AdContainerView"
         const val TEST_AD_ID = "ca-app-pub-3940256099942544/6300978111"
+
+        private fun logDebug(message: String) = Log.d(TAG, message)
+        private fun logInfo(message: String) = Log.i(TAG, message)
     }
 
     /**
@@ -180,26 +184,26 @@ class AdContainerView @JvmOverloads constructor(
         private fun onCreate() {
             if (autoLoad) {
                 loadAdView(adUnitId, adSize)
-                Log.d(tag, "onCreate()")
+                logDebug("onCreate()")
             }
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         private fun pause() {
             pauseAd()
-            Log.d(tag, "pauseAd()")
+            logDebug("pauseAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         private fun destroy() {
             destroyAd()
-            Log.d(tag, "destroyAd()")
+            logDebug("destroyAd()")
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         private fun resume() {
             resumeAd()
-            Log.d(tag, "resumeAd()")
+            logDebug("resumeAd()")
         }
     }
 }

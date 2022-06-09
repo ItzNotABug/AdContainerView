@@ -31,9 +31,10 @@ open class BaseAd @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
 
-    internal val tag = javaClass.simpleName
     internal val showOnConditionMessage =
         "showOnCondition lambda returned false, AdContainerView will not load an Ad."
+    internal val makeSureToHandleLifecycleMessage =
+        "Make sure to call the resume, pause, destroy lifecycle methods."
 
     protected var autoLoad = false
     internal var isAdLoaded = false
@@ -49,9 +50,7 @@ open class BaseAd @JvmOverloads constructor(
     init {
         context.theme.obtainStyledAttributes(
             attrs,
-            R.styleable.AdContainerView,
-            0,
-            0
+            R.styleable.AdContainerView, 0, 0
         ).apply {
             try {
                 adUnitId = getString(R.styleable.AdContainerView_acv_adUnitId)
