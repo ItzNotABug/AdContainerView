@@ -1,6 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.vanniktech.maven.publish'
+plugins {
+    id 'com.android.library'
+    id 'com.vanniktech.maven.publish.base'
+    id 'kotlin-android'
+}
 
 android {
     compileSdkVersion 32
