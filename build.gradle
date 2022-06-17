@@ -1,7 +1,7 @@
 import com.vanniktech.maven.publish.*
 
 buildscript {
-    ext.kotlin_version = "1.6.21"
+    ext.kotlin_version = "1.7.0"
     repositories {
         google()
         mavenCentral()
@@ -24,7 +24,7 @@ allprojects {
 
     plugins.withId("com.vanniktech.maven.publish.base") {
         group "com.lazygeniouz"
-        version "0.3.2"
+        version "0.3.4"
 
         mavenPublishing {
             signAllPublications()

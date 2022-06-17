@@ -15,28 +15,28 @@ Make sure to add that to your repositories block.
 
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.3.2'
+implementation 'com.lazygeniouz:acv:0.3.4'
 ```
 **Maven**
 ```xml
 <dependency>
-  <groupId>com.lazygeniouz</groupId>
-  <artifactId>acv</artifactId>
-  <version>0.3.2</version>
-  <type>aar</type>
+    <groupId>com.lazygeniouz</groupId>
+    <artifactId>acv</artifactId>
+    <version>0.3.2</version>
+    <type>aar</type>
 </dependency>
 ```
 
 ## Using `AdContainerView`
 ### The same old XML Way
 ```xml
-    <com.lazygeniouz.acv.AdContainerView
-        android:id="@+id/adContainerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:acv_autoLoad="true"
-        app:acv_adSize="ADAPTIVE"
-        app:acv_adUnitId="@string/test_ad"/>
+<com.lazygeniouz.acv.AdContainerView 
+    android:id="@+id/adContainerView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:acv_autoLoad="true"
+    app:acv_adSize="ADAPTIVE"
+    app:acv_adUnitId="@string/test_ad"/>
 ```
 The attributes are as follows:
 *   `acv_autoLoad`: Default Value is `false`\
@@ -56,11 +56,11 @@ parentLayout.addView(adContainerView)
 **Loading the Ad:**
 ```kotlin
 fun loadAdView(
-  adUnitId: String,
-  adSize: AdSize,
-  adRequest: AdRequest,
-  parentHasListView: Boolean,
-  showOnCondition: (() -> Boolean)? = null
+    adUnitId: String,
+    adSize: AdSize,
+    adRequest: AdRequest,
+    parentHasListView: Boolean,
+    showOnCondition: (() -> Boolean)? = null
 )
 ```
 1. The arguments `adSize` & `adRequest` are optional\
@@ -73,22 +73,26 @@ fun loadAdView(
 ---
 **All other methods:**
 
-*   `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
+* `@Nullable getAdView()`: Returns the underlying `AdView`, can be `@null` if called before `loadAdView()`.
 
-*   `isAdLoaded(): Boolean`: Returns `true` if the Ad is loaded, `false` otherwise.
+* `isLoading(): Boolean`: Returns `true` if the Ad is currently loading, `false` otherwise.
 
-*   `isVisible(): Boolean`: Returns `true` if the Ad is loaded, not null & visible, `false` otherwise.
+* `isAdLoaded(): Boolean`: Returns `true` if the Ad is loaded, `false` otherwise.
 
-*   `getAdSize()`: Returns current `adSize`.
+* `isVisible(): Boolean`: Returns `true` if the Ad is loaded, not null & visible, `false` otherwise.
 
-*   `getAdUnitId()`: Returns current `adUnitId`.
+* `getAdSize()`: Returns current `adSize`.
 
-*   `setAdListener(listener: AdListener)`: Use the AdView's [`AdListener`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener).
+* `getAdUnitId()`: Returns current `adUnitId`.
 
-*   `removeAd()`: Removes the AdView. Make sure to call `loadAdView()` to re-add `AdView`.
+* `setAdListener(listener: AdListener)`: Use the AdView's [`AdListener`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener).
 
-*   `resumeAd()`: Resumes AdView **(Handled automatically)**
+* `@Nullable getAdListener()`: Returns the Listener if set, null otherwise.
 
-*   `pauseAd()`: Pauses AdView **(Handled automatically)**
+* `removeAd()`: Removes the AdView. Make sure to call `loadAdView()` to re-add `AdView`.
 
-*   `destroyAd()`: Destroys AdView **(Handled automatically)**
+* `resumeAd()`: Resumes AdView **(Handled automatically)**
+
+* `pauseAd()`: Pauses AdView **(Handled automatically)**
+
+* `destroyAd()`: Destroys AdView **(Handled automatically)**
