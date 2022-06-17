@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.Keep
+import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -37,7 +38,7 @@ class AdContainerView @JvmOverloads constructor(
                 // `addObserver` only on MainThread
                 context.lifecycle.addObserver(HostActivityObserver())
             } else logDebug("Current thread is not main-thread, not adding lifecycle observer. $makeSureToHandleLifecycleMessage")
-        } else logDebug("The supplied Context is not an instance of FragmentActivity. $makeSureToHandleLifecycleMessage")
+        } else logDebug("Context is not a FragmentActivity. $makeSureToHandleLifecycleMessage")
     }
 
     /**
@@ -61,7 +62,7 @@ class AdContainerView @JvmOverloads constructor(
         parentMayHaveAListView = parentHasListView
 
         if (adUnitId == TEST_AD_ID) {
-            logInfo("Current adUnitId is a Test Ad Unit, make sure to use your own in Production")
+            logDebug("Current adUnitId is a Test Ad Unit, make sure to use your own in Production")
         }
 
         if (showOnCondition?.invoke() == false) {
@@ -120,6 +121,13 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     /**
+     * Returns [AdView] if certain op. needs to be performed
+     * or certain info is required like mediation info of the ad.
+     */
+    @Nullable
+    fun getAdView(): AdView? = newAdView
+
+    /**
      * Removes / Destroys the Ad from the View.
      *
      * Make sure to call [loadAdView] to load & add the AdView again
@@ -172,7 +180,6 @@ class AdContainerView @JvmOverloads constructor(
         const val TEST_AD_ID = "ca-app-pub-3940256099942544/6300978111"
 
         private fun logDebug(message: String) = Log.d(TAG, message)
-        private fun logInfo(message: String) = Log.i(TAG, message)
     }
 
     /**

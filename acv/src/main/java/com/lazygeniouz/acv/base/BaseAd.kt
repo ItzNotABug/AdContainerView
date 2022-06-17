@@ -12,6 +12,7 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.annotation.Keep
+import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -78,24 +79,30 @@ open class BaseAd @JvmOverloads constructor(
     }
 
     /**
+     * Returns the attached ad listener if set, null otherwise
+     */
+    @Nullable
+    fun getAdListener(): AdListener? = listener
+
+    /**
      * Return whether the Ad is loaded or not
      */
-    fun isAdLoaded() = isAdLoaded
+    fun isAdLoaded(): Boolean = isAdLoaded
 
     /**
      * Return the Ad's Loading State.
      */
-    fun isLoading() = newAdView?.isLoading ?: false
+    fun isLoading(): Boolean = newAdView?.isLoading ?: false
 
     /**
      * Returns the Ad's visibility.
      */
-    fun isVisible() = newAdView?.visibility == View.VISIBLE
+    fun isVisible(): Boolean = newAdView?.visibility == View.VISIBLE
 
     /**
      * Returns AdView's current AdUnitId
      */
-    fun getAdUnitId() = adUnitId
+    fun getAdUnitId(): String = adUnitId
 
     /**
      * Returns AdView's current AdSize
@@ -105,7 +112,7 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Return autoLoad value
      */
-    fun isAutoLoad() = autoLoad
+    fun isAutoLoad(): Boolean = autoLoad
 
     // Get a simple & default AdRequest
     protected fun getAdRequest(): AdRequest = AdRequest.Builder().build()
