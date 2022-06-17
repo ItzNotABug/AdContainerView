@@ -13,16 +13,18 @@ This is most helpful when you just want to add a simple Banner Ad without any bo
 `AdContainerView` is now on `mavenCentral()`,\
 Make sure to add that to your repositories block.
 
+`val latest_version = 0.3.4`
+
 **Gradle**
 ```gradle
-implementation 'com.lazygeniouz:acv:0.3.4'
+implementation 'com.lazygeniouz:acv:$latest_version'
 ```
 **Maven**
 ```xml
 <dependency>
     <groupId>com.lazygeniouz</groupId>
     <artifactId>acv</artifactId>
-    <version>0.3.2</version>
+    <version>$latest_version</version>
     <type>aar</type>
 </dependency>
 ```
