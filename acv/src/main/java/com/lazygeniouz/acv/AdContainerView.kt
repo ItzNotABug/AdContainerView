@@ -10,8 +10,8 @@ import androidx.annotation.Keep
 import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.ads.*
 import com.lazygeniouz.acv.base.BaseAd
 
@@ -37,7 +37,10 @@ class AdContainerView @JvmOverloads constructor(
             if (isMainThread()) {
                 // `addObserver` only on MainThread
                 context.lifecycle.addObserver(HostActivityObserver())
-            } else logDebug("Current thread is not main-thread, not adding lifecycle observer. $makeSureToHandleLifecycleMessage")
+            } else {
+                // Should we switch the thread for adding observer via [Handler.post()]?
+                logDebug("Current thread is not main, not adding lifecycle observer. $makeSureToHandleLifecycleMessage")
+            }
         } else logDebug("Context is not a FragmentActivity. $makeSureToHandleLifecycleMessage")
     }
 
@@ -125,6 +128,7 @@ class AdContainerView @JvmOverloads constructor(
      * or certain info is required like mediation info of the ad.
      */
     @Nullable
+    @Suppress("unused")
     fun getAdView(): AdView? = newAdView
 
     /**
@@ -185,32 +189,17 @@ class AdContainerView @JvmOverloads constructor(
     /**
      * Observer to call AdView's respective methods on appropriate Lifecycle event
      */
-    private inner class HostActivityObserver : LifecycleObserver {
+    private inner class HostActivityObserver : LifecycleEventObserver {
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        private fun onCreate() {
-            if (autoLoad) {
-                loadAdView(adUnitId, adSize)
-                logDebug("onCreate()")
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> if (autoLoad) loadAdView(adUnitId, adSize)
+                Lifecycle.Event.ON_RESUME -> resumeAd()
+                Lifecycle.Event.ON_PAUSE -> pauseAd()
+                Lifecycle.Event.ON_DESTROY -> destroyAd()
+                else -> { /* ignore other events */
+                }
             }
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        private fun pause() {
-            pauseAd()
-            logDebug("pauseAd()")
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        private fun destroy() {
-            destroyAd()
-            logDebug("destroyAd()")
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        private fun resume() {
-            resumeAd()
-            logDebug("resumeAd()")
         }
     }
 }

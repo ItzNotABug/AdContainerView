@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.21.0'
@@ -24,7 +24,7 @@ allprojects {
 
     plugins.withId("com.vanniktech.maven.publish.base") {
         group "com.lazygeniouz"
-        version "0.3.5"
+        version "0.3.6"
 
         mavenPublishing {
             signAllPublications()
