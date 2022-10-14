@@ -12,7 +12,6 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.annotation.Keep
-import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -81,7 +80,6 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Returns the attached ad listener if set, null otherwise
      */
-    @Nullable
     fun getAdListener(): AdListener? = listener
 
     /**
@@ -121,9 +119,8 @@ open class BaseAd @JvmOverloads constructor(
     private fun getAdaptiveAdSize(): AdSize {
         return if (context is FragmentActivity) {
             val outMetrics = DisplayMetrics()
-            val display =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) context.display
-                else (context as FragmentActivity).windowManager.defaultDisplay
+            val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) context.display
+            else (context as FragmentActivity).windowManager.defaultDisplay
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display?.getRealMetrics(outMetrics)
             else display?.getMetrics(outMetrics)

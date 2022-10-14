@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.Keep
-import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -127,7 +126,6 @@ class AdContainerView @JvmOverloads constructor(
      * Returns [AdView] if certain op. needs to be performed
      * or certain info is required like mediation info of the ad.
      */
-    @Nullable
     @Suppress("unused")
     fun getAdView(): AdView? = newAdView
 
