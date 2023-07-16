@@ -13,7 +13,7 @@ This is most helpful when you just want to add a simple Banner Ad without any bo
 `AdContainerView` is now on `mavenCentral()`,\
 Make sure to add that to your repositories block.
 
-`val latest_version = 0.3.8`
+`val latest_version = 0.3.9`
 
 **Gradle**
 ```gradle
