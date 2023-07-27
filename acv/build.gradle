@@ -6,6 +6,7 @@ plugins {
 
 android {
     compileSdkVersion 34
+    namespace 'com.lazygeniouz.acv'
 
     defaultConfig {
         minSdkVersion 19
