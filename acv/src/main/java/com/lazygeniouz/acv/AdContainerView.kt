@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.Keep
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -30,15 +29,10 @@ class AdContainerView @JvmOverloads constructor(
 ) : BaseAd(context, attrs, defStyleAttr) {
 
     init {
-        // It `should` be a FragmentActivity Instance!
-        // For Fragment, afaik, the Host Activity's instance will be used by default.
-        if (context is FragmentActivity) {
+        if (context is LifecycleOwner) {
             if (isMainThread()) {
                 // `addObserver` only on MainThread
                 context.lifecycle.addObserver(HostActivityObserver())
-            } else {
-                // Should we switch the thread for adding observer via [Handler.post()]?
-                logDebug("Current thread is not main, not adding lifecycle observer. $makeSureToHandleLifecycleMessage")
             }
         } else logDebug("Context is not a FragmentActivity. $makeSureToHandleLifecycleMessage")
     }
