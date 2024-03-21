@@ -6,8 +6,8 @@ android {
     namespace 'com.lazygeniouz.acv.example'
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdk 21
+        targetSdk 34
 
         versionCode 1
         versionName "1.0"
