@@ -10,7 +10,11 @@ import androidx.annotation.Keep
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.gms.ads.*
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.lazygeniouz.acv.base.BaseAd
 
 /**
@@ -57,8 +61,8 @@ class AdContainerView @JvmOverloads constructor(
 
         parentMayHaveAListView = parentHasListView
 
-        if (adUnitId == TEST_AD_ID) {
-            logDebug("Current adUnitId is a Test Ad Unit, make sure to use your own in Production")
+        if (adUnitId == FIXED_SIZE_TEST_AD_ID || adUnitId == ADAPTIVE_SIZE_TEST_AD_ID) {
+            logDebug("Current adUnitId is a Test Ad Unit, make sure to use your own in Production!")
         }
 
         if (showOnCondition?.invoke() == false) {
@@ -173,7 +177,8 @@ class AdContainerView @JvmOverloads constructor(
 
     companion object {
         const val TAG = "AdContainerView"
-        const val TEST_AD_ID = "ca-app-pub-3940256099942544/6300978111"
+        const val FIXED_SIZE_TEST_AD_ID = "ca-app-pub-3940256099942544/6300978111"
+        const val ADAPTIVE_SIZE_TEST_AD_ID = "ca-app-pub-3940256099942544/9214589741"
 
         private fun logDebug(message: String) = Log.d(TAG, message)
     }

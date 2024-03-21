@@ -39,7 +39,7 @@ open class BaseAd @JvmOverloads constructor(
     protected var autoLoad = false
     internal var isAdLoaded = false
     internal var adSize: AdSize = AdSize.SMART_BANNER
-    internal var adUnitId = AdContainerView.TEST_AD_ID
+    internal var adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
 
     internal var parentMayHaveAListView: Boolean = false
     internal val transparent = ColorDrawable(Color.TRANSPARENT)
@@ -54,7 +54,7 @@ open class BaseAd @JvmOverloads constructor(
         ).apply {
             try {
                 adUnitId = getString(R.styleable.AdContainerView_acv_adUnitId)
-                    ?: AdContainerView.TEST_AD_ID
+                    ?: AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
                 autoLoad = getBoolean(R.styleable.AdContainerView_acv_autoLoad, false)
                 adSize = getAdSize(getInt(R.styleable.AdContainerView_acv_adSize, 0))
             } finally {
