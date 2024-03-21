@@ -9,7 +9,7 @@ android {
     namespace 'com.lazygeniouz.acv'
 
     defaultConfig {
-        minSdk 19
+        minSdk 21
         targetSdk 34
     }
 
@@ -31,5 +31,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-ads:22.2.0'
+    implementation 'com.google.android.gms:play-services-ads:23.0.0'
 }

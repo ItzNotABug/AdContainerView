@@ -1,29 +1,35 @@
 package com.lazygeniouz.acv.example
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.LoadAdError
-import kotlinx.android.synthetic.main.main.*
+import com.lazygeniouz.acv.AdContainerView
 
-@SuppressLint("SetTextI18n")
 /**
- * Example App to demonstrate AdContainerView library
+ * Example App to demonstrate AdContainerView library.
  */
-class MainActivity : AppCompatActivity(R.layout.main) {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.main)
 
-        adContainerView.setAdListener(object : AdListener() {
-            override fun onAdLoaded() {
-                ad_state.text = "Ad State : Loaded"
-            }
+        val adState: TextView = findViewById(R.id.ad_state)
 
-            override fun onAdFailedToLoad(error: LoadAdError?) {
-                ad_state.text = "Ad State : Error, \nInfo: ${error?.responseInfo}"
-            }
-        })
+        (findViewById<AdContainerView>(R.id.adContainerView)).apply {
+            setAdListener(object : AdListener() {
+                override fun onAdLoaded() {
+                    adState.text = String.format("Ad State : Loaded")
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    adState.text = String.format("Ad State : Error, \nInfo: ${error.message}")
+                }
+            })
+
+            loadAdView()
+        }
     }
 }
