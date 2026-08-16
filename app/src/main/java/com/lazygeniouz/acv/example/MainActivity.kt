@@ -54,16 +54,16 @@ class MainActivity : AppCompatActivity() {
 
         (application as App).adsInitialization.whenComplete { _, error ->
             runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-
-                if (error == null) {
-                    loadBanner()
-                } else {
-                    renderStatus(
-                        R.string.ad_status_initialization_failed_title,
-                        errorDetail(error.cause?.message ?: error.message),
-                        loading = false
-                    )
+                if (!isFinishing && !isDestroyed) {
+                    if (error == null) {
+                        loadBanner()
+                    } else {
+                        renderStatus(
+                            R.string.ad_status_initialization_failed_title,
+                            errorDetail(error.cause?.message ?: error.message),
+                            loading = false
+                        )
+                    }
                 }
             }
         }

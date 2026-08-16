@@ -138,26 +138,27 @@ class AdContainerView @JvmOverloads constructor(
             override fun onAdLoaded(ad: BannerAd) {
                 attachAdCallbacks(adView, ad)
                 runOnMainThread {
-                    if (newAdView !== adView) {
+                    if (newAdView === adView) {
+                        isAdLoading = false
+                        isAdLoaded = true
+                        adView.visibility = View.VISIBLE
+                        logDebug("Banner loaded.")
+                        loadCallback?.onAdLoaded(ad)
+                    } else {
                         ad.destroy()
-                        return@runOnMainThread
                     }
-                    isAdLoading = false
-                    isAdLoaded = true
-                    adView.visibility = View.VISIBLE
-                    logDebug("Banner loaded.")
-                    loadCallback?.onAdLoaded(ad)
                 }
             }
 
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 runOnMainThread {
-                    if (newAdView !== adView) return@runOnMainThread
-                    isAdLoading = false
-                    isAdLoaded = false
-                    adView.visibility = View.GONE
-                    logDebug("Banner load failed (${adError.code}): ${adError.message}")
-                    loadCallback?.onAdFailedToLoad(adError)
+                    if (newAdView === adView) {
+                        isAdLoading = false
+                        isAdLoaded = false
+                        adView.visibility = View.GONE
+                        logDebug("Banner load failed (${adError.code}): ${adError.message}")
+                        loadCallback?.onAdFailedToLoad(adError)
+                    }
                 }
             }
         }
