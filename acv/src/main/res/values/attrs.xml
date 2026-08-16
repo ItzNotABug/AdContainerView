@@ -13,7 +13,6 @@
             <enum name="LARGE_BANNER" value="4" />
             <enum name="LEADERBOARD" value="5" />
             <enum name="MEDIUM_RECTANGLE" value="6" />
-            <enum name="WIDE_SKYSCRAPER" value="7" />
         </attr>
     </declare-styleable>
 </resources>

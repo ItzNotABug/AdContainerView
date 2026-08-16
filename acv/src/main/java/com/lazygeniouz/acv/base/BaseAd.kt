@@ -2,10 +2,11 @@ package com.lazygeniouz.acv.base
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 import androidx.annotation.Keep
-import androidx.core.graphics.drawable.toDrawable
+import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
@@ -15,7 +16,15 @@ import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.lazygeniouz.acv.AdContainerView
 import com.lazygeniouz.acv.R
-/** Stores banner configuration, callbacks, and observable state for [AdView]. */
+
+/**
+ * Stores banner configuration, callbacks, and observable state for [AdView].
+ * Public APIs and protected mutable state must be accessed from the main thread.
+ *
+ * @param context the view context.
+ * @param attrs XML attributes for the view.
+ * @param defStyleAttr the default style attribute.
+ */
 @Keep
 open class BaseAd @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -24,33 +33,45 @@ open class BaseAd @JvmOverloads constructor(
     internal val showOnConditionMessage =
         "Ad request skipped because showOnCondition returned false."
     internal val makeSureToHandleLifecycleMessage =
-        "Automatic cleanup is unavailable; call destroyAd() when the host is destroyed."
+        "No LifecycleOwner found; call destroyAd() when the host is destroyed."
 
+    /** Whether this view requests its configured banner during the host's `ON_CREATE` event. */
     protected var autoLoad = false
     internal var isAdLoaded = false
     internal var isAdLoading = false
     internal var adSize: AdSize = getAdaptiveAdSize()
     internal var adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
+    internal var shouldResolveInitialAdaptiveSize = true
 
     internal var parentMayHaveAListView = false
-    internal val transparent = Color.TRANSPARENT.toDrawable()
+    internal val transparent = ColorDrawable(Color.TRANSPARENT)
 
+    /** The current load callback, replaced by [setAdLoadCallback]. */
     protected var loadCallback: AdLoadCallback<BannerAd>? = null
+
+    /** The current banner event callback, replaced by [setAdEventCallback]. */
     protected var eventCallback: BannerAdEventCallback? = null
+
+    /** The current refresh callback, replaced by [setAdRefreshCallback]. */
     protected var refreshCallback: BannerAdRefreshCallback? = null
+
+    /** The current SDK view, or null before loading and after destruction. */
     protected var newAdView: AdView? = null
 
     init {
         context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.AdContainerView, 0, 0
+            attrs, R.styleable.AdContainerView, defStyleAttr, 0
         ).apply {
             try {
-                val adSizeValue = getInt(R.styleable.AdContainerView_acv_adSize, 0)
+                val adSizeValue = getInt(
+                    R.styleable.AdContainerView_acv_adSize,
+                    XML_AD_SIZE_LARGE_ADAPTIVE
+                )
                 adUnitId = getString(R.styleable.AdContainerView_acv_adUnitId)
-                    ?: getTestAdUnitId(adSizeValue)
+                    ?: resolveTestAdUnitId(adSizeValue)
                 autoLoad = getBoolean(R.styleable.AdContainerView_acv_autoLoad, false)
-                adSize = getAdSize(adSizeValue)
+                adSize = resolveAdSize(adSizeValue)
+                shouldResolveInitialAdaptiveSize = !isFixedAdSize(adSizeValue)
             } finally {
                 recycle()
             }
@@ -58,9 +79,12 @@ open class BaseAd @JvmOverloads constructor(
     }
 
     /**
-     * Receives the initial banner load result.
+     * Replaces the callback that receives the initial banner load result.
      * Callbacks registered through this view are delivered on the main thread.
+     *
+     * @param callback the load callback to receive.
      */
+    @MainThread
     fun setAdLoadCallback(callback: AdLoadCallback<BannerAd>) {
         loadCallback = callback
     }
@@ -68,12 +92,17 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Returns the attached load callback if set, null otherwise.
      */
+    @MainThread
     fun getAdLoadCallback(): AdLoadCallback<BannerAd>? = loadCallback
 
     /**
-     * Receives click, impression, paid, and full-screen banner events.
+     * Replaces the callback that receives click, impression, paid, app, and full-screen banner
+     * events.
      * Callbacks registered through this view are delivered on the main thread.
+     *
+     * @param callback the event callback to receive.
      */
+    @MainThread
     fun setAdEventCallback(callback: BannerAdEventCallback) {
         eventCallback = callback
     }
@@ -81,12 +110,16 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Returns the attached banner event callback if set, null otherwise.
      */
+    @MainThread
     fun getAdEventCallback(): BannerAdEventCallback? = eventCallback
 
     /**
-     * Receives automatic banner refresh results.
+     * Replaces the callback that receives automatic banner refresh results.
      * Callbacks registered through this view are delivered on the main thread.
+     *
+     * @param callback the refresh callback to receive.
      */
+    @MainThread
     fun setAdRefreshCallback(callback: BannerAdRefreshCallback) {
         refreshCallback = callback
     }
@@ -94,77 +127,92 @@ open class BaseAd @JvmOverloads constructor(
     /**
      * Returns the attached banner refresh callback if set, null otherwise.
      */
+    @MainThread
     fun getAdRefreshCallback(): BannerAdRefreshCallback? = refreshCallback
 
-    /**
-     * Return whether the Ad is loaded or not
-     */
+    /** Returns whether the current banner completed its initial load successfully. */
+    @MainThread
     fun isAdLoaded(): Boolean = isAdLoaded
 
-    /**
-     * Return the Ad's Loading State.
-     */
+    /** Returns whether an initial banner request is in progress. */
+    @MainThread
     fun isLoading(): Boolean = isAdLoading
 
-    /**
-     * Returns the Ad's visibility.
-     */
+    /** Returns whether the current SDK view has [VISIBLE] visibility. */
+    @MainThread
     fun isVisible(): Boolean = newAdView?.visibility == VISIBLE
 
-    /**
-     * Returns AdView's current AdUnitId
-     */
+    /** Returns the configured or most recently requested banner ad unit ID. */
+    @MainThread
     fun getAdUnitId(): String = adUnitId
 
-    /**
-     * Returns AdView's current AdSize
-     */
+    /** Returns the configured or most recently requested banner size. */
+    @MainThread
     fun getAdSize(): AdSize = adSize
 
-    /**
-     * Return autoLoad value
-     */
+    /** Returns whether automatic loading is enabled. */
+    @MainThread
     fun isAutoLoad(): Boolean = autoLoad
 
-    // Get a default request for the configured ad unit and size.
+    /**
+     * Builds a request for the supplied ad unit and size.
+     *
+     * @param adUnitId the banner ad unit ID.
+     * @param adSize the requested banner size.
+     */
     protected fun getAdRequest(adUnitId: String, adSize: AdSize): BannerAdRequest =
         BannerAdRequest.Builder(adUnitId, adSize).build()
 
-    // Get a large anchored adaptive banner sized to the current display width.
+    internal fun resolveConfiguredAdSize(): AdSize =
+        if (shouldResolveInitialAdaptiveSize) getAdaptiveAdSize() else adSize
+
+    // Prefer the measured content width; fall back to the display before layout.
     private fun getAdaptiveAdSize(): AdSize {
         val displayMetrics = resources.displayMetrics
-        val adWidth = (displayMetrics.widthPixels / displayMetrics.density)
+        val contentWidth = (width - paddingLeft - paddingRight)
+            .takeIf { it > 0 }
+            ?: displayMetrics.widthPixels
+        val adWidth = (contentWidth / displayMetrics.density)
             .toInt()
             .coerceAtLeast(1)
         return AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, adWidth)
     }
 
-    private fun getAdSize(typedArrayValue: Int): AdSize {
-        return when (typedArrayValue) {
-            0, 1 -> getAdaptiveAdSize() // Includes legacy XML aliases.
-            2 -> AdSize.BANNER
-            3 -> AdSize.FULL_BANNER
-            4 -> AdSize.LARGE_BANNER
-            5 -> AdSize.LEADERBOARD
-            6 -> AdSize.MEDIUM_RECTANGLE
-            7 -> AdSize(160, 600)
-            else -> throw IllegalArgumentException(
-                "Currently Supported AdSizes are: " +
-                        "LARGE_ADAPTIVE, " +
-                        "BANNER, " +
-                        "FULL_BANNER, " +
-                        "LARGE_BANNER, " +
-                        "LEADERBOARD, " +
-                        "MEDIUM_RECTANGLE, " +
-                        "WIDE_SKYSCRAPER"
-            )
-        }
+    private fun resolveAdSize(value: Int): AdSize = when (value) {
+        XML_AD_SIZE_LARGE_ADAPTIVE,
+        XML_AD_SIZE_SMART_BANNER -> getAdaptiveAdSize()
+        XML_AD_SIZE_BANNER -> AdSize.BANNER
+        XML_AD_SIZE_FULL_BANNER -> AdSize.FULL_BANNER
+        XML_AD_SIZE_LARGE_BANNER -> AdSize.LARGE_BANNER
+        XML_AD_SIZE_LEADERBOARD -> AdSize.LEADERBOARD
+        XML_AD_SIZE_MEDIUM_RECTANGLE -> AdSize.MEDIUM_RECTANGLE
+        else -> getAdaptiveAdSize()
     }
 
-    private fun getTestAdUnitId(typedArrayValue: Int): String =
-        if (typedArrayValue == 0 || typedArrayValue == 1) {
-            AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
-        } else {
+    private fun resolveTestAdUnitId(value: Int): String =
+        if (isFixedAdSize(value)) {
             AdContainerView.FIXED_SIZE_TEST_AD_ID
+        } else {
+            AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
         }
+
+    private fun isFixedAdSize(value: Int): Boolean = when (value) {
+        XML_AD_SIZE_BANNER,
+        XML_AD_SIZE_FULL_BANNER,
+        XML_AD_SIZE_LARGE_BANNER,
+        XML_AD_SIZE_LEADERBOARD,
+        XML_AD_SIZE_MEDIUM_RECTANGLE -> true
+        else -> false
+    }
+
+    private companion object {
+        // Keep these values aligned with attrs.xml.
+        const val XML_AD_SIZE_LARGE_ADAPTIVE = 0
+        const val XML_AD_SIZE_SMART_BANNER = 1
+        const val XML_AD_SIZE_BANNER = 2
+        const val XML_AD_SIZE_FULL_BANNER = 3
+        const val XML_AD_SIZE_LARGE_BANNER = 4
+        const val XML_AD_SIZE_LEADERBOARD = 5
+        const val XML_AD_SIZE_MEDIUM_RECTANGLE = 6
+    }
 }
