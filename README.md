@@ -27,6 +27,17 @@ dependencies {
 
 The Next-Gen SDK is exposed transitively; don't add `play-services-ads`.
 
+Apps using AdMob mediation must prevent adapters from restoring the legacy SDK:
+
+```gradle
+configurations.configureEach {
+    exclude group: 'com.google.android.gms', module: 'play-services-ads'
+    exclude group: 'com.google.android.gms', module: 'play-services-ads-lite'
+}
+```
+
+Other mediation platforms are not currently compatible with Next-Gen.
+
 ## Quick start
 
 Add the container to your layout:
@@ -69,6 +80,9 @@ Next-Gen receives the app ID through `InitializationConfig`, not the legacy
 `com.google.android.gms.ads.APPLICATION_ID` manifest entry. Apps using UMP must still keep that
 manifest entry for UMP.
 
+The legacy `OPTIMIZE_INITIALIZATION` and `OPTIMIZE_AD_LOADING` manifest flags are not part of the
+Next-Gen setup. Initialize Next-Gen on a background thread instead.
+
 ## Configuration
 
 | XML attribute  | Default          | Description                                                           |
@@ -80,6 +94,10 @@ manifest entry for UMP.
 `SMART_BANNER` has no Next-Gen equivalent. For source compatibility, the legacy
 `ADAPTIVE` and `SMART_BANNER` XML values both resolve to `LARGE_ADAPTIVE`; use
 `LARGE_ADAPTIVE` in new layouts.
+
+The fixed XML options are `BANNER`, `LARGE_BANNER`, `MEDIUM_RECTANGLE`, `FULL_BANNER`, and
+`LEADERBOARD`. `WIDE_SKYSCRAPER` was removed because Next-Gen does not support it as a standard
+banner size.
 
 You can also supply the ad unit and size directly:
 
@@ -97,7 +115,9 @@ val request = BannerAdRequest.Builder(adUnitId, adSize)
 adContainerView.loadAdView(request)
 ```
 
-Both overloads accept `parentHasListView` and `showOnCondition` options.
+Both overloads accept `parentHasListView` and `showOnCondition` options. Setting
+`parentHasListView=true` disables detach cleanup for recycled list items, so the caller must invoke
+`destroyAd()` when its lifecycle ends.
 
 ## Callbacks
 
@@ -114,8 +134,8 @@ AdContainerView delivers callbacks registered through these methods on the main 
 - `getAdView()` returns the current Next-Gen `AdView`.
 - `isLoading()`, `isAdLoaded()`, and `isVisible()` expose banner state.
 - `getAdSize()` and `getAdUnitId()` expose the active request configuration.
-- `removeAd()` and `destroyAd()` release the current banner. Lifecycle-aware hosts are handled
-  automatically.
+- `removeAd()` and `destroyAd()` release the current banner. Detached views are cleaned up
+  automatically unless `parentHasListView=true`.
 
 ## Migrating from 0.4.x
 
@@ -127,6 +147,7 @@ AdContainerView delivers callbacks registered through these methods on the main 
 | `AdRequest`                    | `BannerAdRequest` with ad unit ID and size |
 | `AdListener`                   | Load, event, and refresh callbacks         |
 | Smart/standard adaptive banner | Large anchored adaptive banner             |
+| `WIDE_SKYSCRAPER`              | Removed; no standard Next-Gen equivalent   |
 | `pauseAd()` / `resumeAd()`     | Removed; Next-Gen has no equivalent        |
 
 See Google's [SDK migration guide](https://developers.google.com/admob/android/next-gen/migration)
