@@ -4,6 +4,8 @@
         <attr name="acv_adUnitId" format="string" />
         <attr name="acv_autoLoad" format="boolean" />
         <attr name="acv_adSize" format="enum">
+            <enum name="LARGE_ADAPTIVE" value="0" />
+            <!-- Compatibility aliases for versions before 0.5.0. -->
             <enum name="ADAPTIVE" value="0" />
             <enum name="SMART_BANNER" value="1" />
             <enum name="BANNER" value="2" />

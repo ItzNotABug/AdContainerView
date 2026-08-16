@@ -1,29 +1,37 @@
 package com.lazygeniouz.acv.example
 
 import android.app.Application
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
+import com.google.android.material.color.DynamicColors
+import java.util.concurrent.CompletableFuture
 
-/**
- * Let's initialize MobileAds in our Application
- */
+/** Initializes the sample's theme and the Google Mobile Ads SDK once per process. */
 class App : Application() {
+
+    internal val adsInitialization: CompletableFuture<Unit> = CompletableFuture()
+
     override fun onCreate() {
         super.onCreate()
 
-        markTestDevice()
-        initializeAdsSdk()
+        DynamicColors.applyToActivitiesIfAvailable(this)
+        initializeAdsSdkAsync()
     }
 
-    private fun markTestDevice() {
-        MobileAds.setRequestConfiguration(
-            RequestConfiguration.Builder().setTestDeviceIds(
-                arrayListOf("A1310A728BE015FCB189C307B880CBA8")
-            ).build()
-        )
+    private fun initializeAdsSdkAsync() {
+        Thread({
+            runCatching {
+                val initializationConfig = InitializationConfig.Builder(SAMPLE_APP_ID)
+                    .build()
+
+                MobileAds.initialize(applicationContext, initializationConfig)
+            }.onSuccess {
+                adsInitialization.complete(Unit)
+            }.onFailure(adsInitialization::completeExceptionally)
+        }, "MobileAdsInitializer").start()
     }
 
-    private fun initializeAdsSdk() {
-        MobileAds.initialize(this)
+    private companion object {
+        const val SAMPLE_APP_ID = "ca-app-pub-3940256099942544~3347511713"
     }
 }

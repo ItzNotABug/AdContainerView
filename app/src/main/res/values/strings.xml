@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AdContainerViewExample</string>
+    <string name="app_name">AdContainerView</string>
+    <string name="sample_title">Large adaptive banner</string>
+    <string name="sample_description">A minimal lifecycle-aware example using the Google Mobile Ads Next-Gen SDK.</string>
+
+    <string name="ad_status_initializing_title">Initializing SDK</string>
+    <string name="ad_status_initializing_detail">Waiting before requesting a banner.</string>
+    <string name="ad_status_loading_title">Loading banner</string>
+    <string name="ad_status_loading_detail">AdContainerView is handling the request.</string>
+    <string name="ad_status_loaded_title">Banner loaded</string>
+    <string name="ad_status_loaded_detail">A Google test ad is now visible.</string>
+    <string name="ad_status_load_failed_title">Load failed</string>
+    <string name="ad_status_initialization_failed_title">Initialization failed</string>
+    <string name="ad_status_unknown_error">No additional error details were provided.</string>
+    <string name="ad_loading_content_description">Loading the test banner</string>
+
+    <string name="reload_banner">Reload</string>
 </resources>
