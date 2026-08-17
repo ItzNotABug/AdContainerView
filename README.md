@@ -18,6 +18,8 @@ repositories {
     mavenCentral()
 }
 
+def version = '0.5.0'
+
 dependencies {
     implementation "com.lazygeniouz:acv:$version"
 }
