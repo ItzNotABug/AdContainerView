@@ -21,7 +21,5 @@
     <string name="ad_status_load_failed_title">Load failed</string>
     <string name="ad_status_initialization_failed_title">Initialization failed</string>
     <string name="ad_status_unknown_error">No additional error details were provided.</string>
-    <string name="ad_loading_content_description">Loading banner</string>
-
     <string name="reload_banner">Reload</string>
 </resources>

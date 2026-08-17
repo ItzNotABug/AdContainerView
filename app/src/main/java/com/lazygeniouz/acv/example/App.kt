@@ -3,13 +3,12 @@ package com.lazygeniouz.acv.example
 import android.app.Application
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
-import com.google.android.material.color.DynamicColors
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/** Initializes the sample's theme and the Google Mobile Ads SDK once per process. */
+/** Initializes the Google Mobile Ads SDK once per process. */
 class App : Application() {
 
     internal val adsInitialization: CompletableFuture<Unit> = CompletableFuture()
@@ -17,7 +16,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        DynamicColors.applyToActivitiesIfAvailable(this)
         initializeAdsSdkAsync()
     }
 
