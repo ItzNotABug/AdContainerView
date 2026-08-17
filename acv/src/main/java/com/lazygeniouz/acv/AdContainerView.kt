@@ -6,13 +6,12 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.Keep
 import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
@@ -48,8 +47,8 @@ class AdContainerView @JvmOverloads constructor(
      * and request configuration unchanged.
      *
      * @param adUnitId the banner ad unit ID.
-     * @param adSize the requested banner size. When available, this view's measured content width
-     * is used to recalculate the configured adaptive default.
+     * @param adSize the requested banner size. Large adaptive sizes are recalculated from the
+     * current content width, with parent and display width fallbacks before layout.
      * @param parentHasListView disables detach cleanup for temporary list recycling. When true,
      * the caller must invoke [destroyAd] when its lifecycle ends.
      * @param showOnCondition skips the request when it returns false.
@@ -111,7 +110,6 @@ class AdContainerView @JvmOverloads constructor(
         parentMayHaveAListView = parentHasListView
         adUnitId = adRequest.adUnitId
         adSize = adRequest.adSize
-        shouldResolveInitialAdaptiveSize = false
 
         destroyAd()
         isAdLoading = true
@@ -255,7 +253,7 @@ class AdContainerView @JvmOverloads constructor(
     /** Binds cleanup to the nearest view-tree lifecycle owner. */
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        bindToLifecycle(ViewTreeLifecycleOwner.get(this) ?: context as? LifecycleOwner)
+        bindToLifecycle(findViewTreeLifecycleOwner() ?: context as? LifecycleOwner)
     }
 
     /** Keeps ads alive across temporary detachments when explicitly used in a scrolling parent. */
@@ -293,10 +291,20 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     private fun loadConfiguredAdWhenMeasured() {
-        if (width - paddingLeft - paddingRight > 0) {
+        if (!adSize.isLargeAnchoredAdaptiveBanner ||
+            width - paddingLeft - paddingRight > 0
+        ) {
             loadAdView()
-        } else {
-            autoLoadPending = true
+            return
+        }
+
+        if (autoLoadPending) return
+        autoLoadPending = true
+        post {
+            if (autoLoadPending) {
+                autoLoadPending = false
+                loadAdView()
+            }
         }
     }
 

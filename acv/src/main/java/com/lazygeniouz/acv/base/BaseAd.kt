@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
+import android.view.View
 import android.widget.RelativeLayout
 import androidx.annotation.Keep
 import androidx.annotation.MainThread
@@ -41,7 +42,6 @@ open class BaseAd @JvmOverloads constructor(
     internal var isAdLoading = false
     internal var adSize: AdSize = getAdaptiveAdSize()
     internal var adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
-    internal var shouldResolveInitialAdaptiveSize = true
 
     internal var parentMayHaveAListView = false
     internal val transparent = ColorDrawable(Color.TRANSPARENT)
@@ -71,7 +71,6 @@ open class BaseAd @JvmOverloads constructor(
                     ?: resolveTestAdUnitId(adSizeValue)
                 autoLoad = getBoolean(R.styleable.AdContainerView_acv_autoLoad, false)
                 adSize = resolveAdSize(adSizeValue)
-                shouldResolveInitialAdaptiveSize = !isFixedAdSize(adSizeValue)
             } finally {
                 recycle()
             }
@@ -163,15 +162,23 @@ open class BaseAd @JvmOverloads constructor(
     protected fun getAdRequest(adUnitId: String, adSize: AdSize): BannerAdRequest =
         BannerAdRequest.Builder(adUnitId, adSize).build()
 
-    internal fun resolveConfiguredAdSize(): AdSize =
-        if (shouldResolveInitialAdaptiveSize) getAdaptiveAdSize() else adSize
+    internal fun resolveConfiguredAdSize(): AdSize = if (adSize.isLargeAnchoredAdaptiveBanner) {
+        getAdaptiveAdSize()
+    } else {
+        adSize
+    }
 
-    // Prefer the measured content width; fall back to the display before layout.
+    // Prefer the measured content width, then the parent content width, then the display.
     private fun getAdaptiveAdSize(): AdSize {
         val displayMetrics = resources.displayMetrics
-        val contentWidth = (width - paddingLeft - paddingRight)
+        val horizontalPadding = paddingLeft + paddingRight
+        val parentContentWidth = (parent as? View)?.run {
+            width - paddingLeft - paddingRight - horizontalPadding
+        }?.takeIf { it > 0 }
+        val contentWidth = (width - horizontalPadding)
             .takeIf { it > 0 }
-            ?: displayMetrics.widthPixels
+            ?: parentContentWidth
+            ?: (displayMetrics.widthPixels - horizontalPadding).coerceAtLeast(1)
         val adWidth = (contentWidth / displayMetrics.density)
             .toInt()
             .coerceAtLeast(1)
