@@ -27,7 +27,9 @@ dependencies {
 
 The Next-Gen SDK is exposed transitively; don't add `play-services-ads`.
 
-Apps using AdMob mediation must prevent adapters from restoring the legacy SDK:
+Apps using AdMob mediation must exclude the
+[legacy SDK modules](https://developers.google.com/admob/android/next-gen/mediation#exclude_comgoogleandroidgms_modules_in_mediation_integrations)
+that adapters otherwise pull in:
 
 ```gradle
 configurations.configureEach {
