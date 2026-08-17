@@ -5,7 +5,7 @@ A lifecycle-aware banner wrapper for the
 releases `AdView`, tracks load state, and forwards banner callbacks on the main thread.
 
 > [!IMPORTANT]
-> Version 0.5.0 uses GMA Next-Gen SDK 1.3.1. It requires Android API 24+, `compileSdk` 35+,
+> Version 0.5.1 uses GMA Next-Gen SDK 1.3.1. It requires Android API 24+, `compileSdk` 35+,
 > Kotlin 1.9+ for Kotlin apps, and completed SDK initialization before the first ad request.
 
 ## Install
@@ -18,12 +18,18 @@ repositories {
     mavenCentral()
 }
 
-def version = '0.5.0'
+def version = '0.5.1'
 
 dependencies {
+    // Views
     implementation "com.lazygeniouz:acv:$version"
+
+    // Compose; includes the view library transitively
+    implementation "com.lazygeniouz:acv-compose:$version"
 }
 ```
+
+Choose the dependency for your UI toolkit; an app does not need to declare both.
 
 The Next-Gen SDK is exposed transitively; don't add `play-services-ads`.
 
@@ -40,7 +46,7 @@ configurations.configureEach {
 
 Other mediation platforms are not currently compatible with Next-Gen.
 
-## Quick start
+## View quick start
 
 Add the container to your layout:
 
@@ -88,6 +94,24 @@ manifest entry for UMP.
 
 The legacy `OPTIMIZE_INITIALIZATION` and `OPTIMIZE_AD_LOADING` manifest flags are not part of the
 Next-Gen setup. Initialize Next-Gen in a background coroutine instead.
+
+## Compose quick start
+
+The Compose artifact is a thin `AndroidView` wrapper around `AdContainerView`. It measures large
+adaptive banners from the available Compose width and destroys the underlying view when it leaves
+composition. It is built against Compose UI 1.10.6 to retain Kotlin 1.9 consumer compatibility:
+
+```kotlin
+AdaptiveAdContainer(
+    adUnitId = BANNER_AD_UNIT_ID,
+    modifier = Modifier.fillMaxWidth()
+)
+```
+
+Use `AdContainer` when supplying a fixed size or customized `BannerAdRequest`. Remember customized
+requests that should remain stable across recomposition; a different request instance reloads the
+banner. Initialize Next-Gen before placing either composable in the composition. Optional load
+lambdas report success and failure; configure event and refresh callbacks on the loaded `BannerAd`.
 
 ## Configuration
 
@@ -145,7 +169,7 @@ AdContainerView delivers callbacks registered through these methods on the main 
 
 ## Migrating from 0.4.x
 
-| 0.4.x                          | 0.5.0                                      |
+| 0.4.x                          | 0.5.x                                      |
 |--------------------------------|--------------------------------------------|
 | `play-services-ads`            | `ads-mobile-sdk:1.3.1`                     |
 | Minimum API 21                 | Minimum API 24                             |

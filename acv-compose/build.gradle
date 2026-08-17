@@ -1,0 +1,47 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.plugin.compose'
+    id 'com.vanniktech.maven.publish'
+}
+
+android {
+    namespace = 'com.lazygeniouz.acv.compose'
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        languageVersion = KotlinVersion.KOTLIN_1_9
+        apiVersion = KotlinVersion.KOTLIN_1_9
+    }
+}
+
+dependencies {
+    api project(':acv')
+    api 'androidx.compose.ui:ui:1.10.6'
+    implementation 'androidx.compose.foundation:foundation-layout:1.10.6'
+}
+
+mavenPublishing {
+    coordinates(GROUP, 'acv-compose', VERSION_NAME)
+
+    pom {
+        name = 'AdContainerView Compose'
+        description = 'Jetpack Compose support for AdContainerView.'
+    }
+}
