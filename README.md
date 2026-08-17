@@ -51,7 +51,7 @@ Add the container to your layout:
     app:acv_adUnitId="@string/banner_ad_unit_id" />
 ```
 
-Initialize Next-Gen on a background thread, then load the banner:
+Initialize Next-Gen in a background coroutine, then load the banner:
 
 ```kotlin
 val adContainerView = findViewById<AdContainerView>(R.id.adContainerView)
@@ -68,18 +68,22 @@ adContainerView.setAdLoadCallback(object : AdLoadCallback<BannerAd> {
 
 val config = InitializationConfig.Builder(ADMOB_APP_ID).build()
 
-Thread {
+CoroutineScope(Dispatchers.IO).launch {
     MobileAds.initialize(applicationContext, config)
-    runOnUiThread { adContainerView.loadAdView() }
-}.start()
+    withContext(Dispatchers.Main) {
+        adContainerView.loadAdView()
+    }
+}
 ```
+
+With mediation, wait for the SDK initialization callback before loading so adapters are ready.
 
 Next-Gen receives the app ID through `InitializationConfig`, not the legacy
 `com.google.android.gms.ads.APPLICATION_ID` manifest entry. Apps using UMP must still keep that
 manifest entry for UMP.
 
 The legacy `OPTIMIZE_INITIALIZATION` and `OPTIMIZE_AD_LOADING` manifest flags are not part of the
-Next-Gen setup. Initialize Next-Gen on a background thread instead.
+Next-Gen setup. Initialize Next-Gen in a background coroutine instead.
 
 ## Configuration
 
