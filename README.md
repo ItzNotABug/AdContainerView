@@ -111,7 +111,8 @@ AdaptiveAdContainer(
 Use `AdContainer` when supplying a fixed size or customized `BannerAdRequest`. Remember customized
 requests that should remain stable across recomposition; a different request instance reloads the
 banner. Initialize Next-Gen before placing either composable in the composition. Optional load
-lambdas report success and failure; configure event and refresh callbacks on the loaded `BannerAd`.
+lambdas report request starts, success, and failure; configure event and refresh callbacks on the
+loaded `BannerAd`.
 
 ## Configuration
 

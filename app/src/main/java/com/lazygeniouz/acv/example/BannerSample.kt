@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -72,7 +72,6 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
 
         LaunchedEffect(availableSizes) {
             if (selectedSize !in availableSizes) {
-                loadState = LoadState.LOADING
                 selectedSize = availableSizes.first()
             }
         }
@@ -99,16 +98,13 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
                 )
 
                 val controlsEnabled = initializationResult?.isSuccess == true &&
+                    selectedSize in availableSizes &&
                     loadState != LoadState.LOADING
                 BannerSizeSelector(
                     sizes = availableSizes,
                     selectedSize = selectedSize,
                     enabled = controlsEnabled,
-                    onSizeSelected = {
-                        loadState = LoadState.LOADING
-                        loadError = null
-                        selectedSize = it
-                    },
+                    onSizeSelected = { selectedSize = it },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
@@ -119,21 +115,21 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
                     loadError = loadError,
                     selectedSize = selectedSize,
                     reloadEnabled = controlsEnabled,
-                    onReload = {
-                        loadState = LoadState.LOADING
-                        loadError = null
-                        reloadKey++
-                    },
+                    onReload = { reloadKey++ },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
                 )
             }
 
-            if (initializationResult?.isSuccess == true) {
+            if (initializationResult?.isSuccess == true && selectedSize in availableSizes) {
                 key(selectedSize, reloadKey) {
                     Banner(
                         size = selectedSize,
+                        onLoadStarted = {
+                            loadState = LoadState.LOADING
+                            loadError = null
+                        },
                         onLoaded = {
                             loadState = LoadState.LOADED
                             loadError = null
@@ -153,6 +149,7 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
 @Composable
 private fun Banner(
     size: BannerSize,
+    onLoadStarted: () -> Unit,
     onLoaded: (BannerAd) -> Unit,
     onFailed: (LoadAdError) -> Unit
 ) {
@@ -165,6 +162,7 @@ private fun Banner(
             AdaptiveAdContainer(
                 adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID,
                 modifier = Modifier.fillMaxWidth(),
+                onAdLoadStarted = onLoadStarted,
                 onAdLoaded = onLoaded,
                 onAdFailedToLoad = onFailed
             )
@@ -173,6 +171,7 @@ private fun Banner(
                 adUnitId = AdContainerView.FIXED_SIZE_TEST_AD_ID,
                 adSize = fixedAdSize,
                 modifier = Modifier.wrapContentSize(),
+                onAdLoadStarted = onLoadStarted,
                 onAdLoaded = onLoaded,
                 onAdFailedToLoad = onFailed
             )
@@ -269,7 +268,7 @@ private fun StatusRow(
 
     Row(
         modifier = modifier
-            .height(64.dp)
+            .heightIn(min = 64.dp)
             .semantics(mergeDescendants = true) {
                 liveRegion = LiveRegionMode.Polite
             },

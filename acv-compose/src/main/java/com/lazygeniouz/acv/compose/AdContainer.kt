@@ -23,10 +23,11 @@ import com.lazygeniouz.acv.AdContainerView
 
 /**
  * Loads and displays a large anchored adaptive banner using the available Compose width.
- * The banner reloads when the available width or [adUnitId] changes.
+ * The banner reloads when its calculated size or [adUnitId] changes.
  *
  * @param adUnitId the banner ad unit ID.
  * @param modifier the modifier applied to the full-width banner container.
+ * @param onAdLoadStarted called on the main thread immediately before a new request attempt.
  * @param onAdLoaded called with the loaded banner on the main thread.
  * @param onAdFailedToLoad called with the load error on the main thread.
  */
@@ -34,6 +35,7 @@ import com.lazygeniouz.acv.AdContainerView
 fun AdaptiveAdContainer(
     adUnitId: String,
     modifier: Modifier = Modifier,
+    onAdLoadStarted: () -> Unit = {},
     onAdLoaded: (BannerAd) -> Unit = {},
     onAdFailedToLoad: (LoadAdError) -> Unit = {}
 ) {
@@ -42,14 +44,15 @@ fun AdaptiveAdContainer(
     val windowInfo = LocalWindowInfo.current
 
     BoxWithConstraints(modifier = modifier) {
+        val windowSize = windowInfo.containerSize
         val windowWidthDp = with(density) {
-            windowInfo.containerSize.width.toDp().value.toInt()
+            windowSize.width.toDp().value.toInt()
         }.coerceAtLeast(1)
         val availableWidthDp = maxWidth.value
             .takeIf { it.isFinite() && it > 0f }
             ?.toInt()
             ?: windowWidthDp
-        val adSize = remember(context, availableWidthDp) {
+        val adSize = remember(context, availableWidthDp, windowSize, density) {
             AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, availableWidthDp)
         }
 
@@ -57,6 +60,7 @@ fun AdaptiveAdContainer(
             adUnitId = adUnitId,
             adSize = adSize,
             modifier = Modifier.fillMaxWidth(),
+            onAdLoadStarted = onAdLoadStarted,
             onAdLoaded = onAdLoaded,
             onAdFailedToLoad = onAdFailedToLoad
         )
@@ -70,6 +74,7 @@ fun AdaptiveAdContainer(
  * @param adUnitId the banner ad unit ID.
  * @param adSize the fixed or precomputed adaptive banner size.
  * @param modifier the modifier applied to the banner container.
+ * @param onAdLoadStarted called on the main thread immediately before a new request attempt.
  * @param onAdLoaded called with the loaded banner on the main thread.
  * @param onAdFailedToLoad called with the load error on the main thread.
  */
@@ -78,6 +83,7 @@ fun AdContainer(
     adUnitId: String,
     adSize: AdSize,
     modifier: Modifier = Modifier,
+    onAdLoadStarted: () -> Unit = {},
     onAdLoaded: (BannerAd) -> Unit = {},
     onAdFailedToLoad: (LoadAdError) -> Unit = {}
 ) {
@@ -87,6 +93,7 @@ fun AdContainer(
     AdContainer(
         adRequest = adRequest,
         modifier = modifier,
+        onAdLoadStarted = onAdLoadStarted,
         onAdLoaded = onAdLoaded,
         onAdFailedToLoad = onAdFailedToLoad
     )
@@ -98,6 +105,7 @@ fun AdContainer(
  *
  * @param adRequest the fully configured banner request.
  * @param modifier the modifier applied to the banner container.
+ * @param onAdLoadStarted called on the main thread immediately before a new request attempt.
  * @param onAdLoaded called with the loaded banner on the main thread. Configure event and refresh
  * callbacks on the returned banner when needed.
  * @param onAdFailedToLoad called with the load error on the main thread.
@@ -106,9 +114,11 @@ fun AdContainer(
 fun AdContainer(
     adRequest: BannerAdRequest,
     modifier: Modifier = Modifier,
+    onAdLoadStarted: () -> Unit = {},
     onAdLoaded: (BannerAd) -> Unit = {},
     onAdFailedToLoad: (LoadAdError) -> Unit = {}
 ) {
+    val currentOnAdLoadStarted by rememberUpdatedState(onAdLoadStarted)
     val currentOnAdLoaded by rememberUpdatedState(onAdLoaded)
     val currentOnAdFailedToLoad by rememberUpdatedState(onAdFailedToLoad)
 
@@ -131,6 +141,7 @@ fun AdContainer(
                             currentOnAdFailedToLoad(adError)
                         }
                     })
+                    currentOnAdLoadStarted()
                     loadAdView(adRequest)
                 }
             },
