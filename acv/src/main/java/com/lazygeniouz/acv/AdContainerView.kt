@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.lazygeniouz.acv
 
 import android.content.Context
@@ -95,7 +97,7 @@ class AdContainerView @JvmOverloads constructor(
         if (!MobileAds.isInitialized) {
             val message =
                 "Ad request skipped because GMA Next-Gen is not initialized. " +
-                    "Await MobileAds.initialize() before calling loadAdView()."
+                        "Await MobileAds.initialize() before calling loadAdView()."
             logDebug(message)
             notifyLoadFailure(LoadAdError(LoadAdError.ErrorCode.CANCELLED, message))
             return
@@ -331,10 +333,12 @@ class AdContainerView @JvmOverloads constructor(
                 Lifecycle.Event.ON_CREATE -> if (autoLoad && newAdView == null) {
                     loadConfiguredAdWhenMeasured()
                 }
+
                 Lifecycle.Event.ON_DESTROY -> {
                     destroyAd()
                     clearLifecycleObserver()
                 }
+
                 else -> { /* ignore other events */
                 }
             }
