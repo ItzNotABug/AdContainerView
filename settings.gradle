@@ -1,3 +1,18 @@
-include ':acv'
-include ':app'
-rootProject.name = "AdContainerViewExample"
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'AdContainerView'
+include ':acv', ':app'

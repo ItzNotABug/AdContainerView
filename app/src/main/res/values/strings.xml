@@ -1,3 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AdContainerViewExample</string>
+    <string name="app_name">AdContainerView</string>
+    <string name="sample_title">Banner preview</string>
+    <string name="sample_description">Choose a supported size to preview a lifecycle-aware banner.</string>
+
+    <string name="banner_size_label">Banner size</string>
+    <string name="banner_size_large_adaptive">Large adaptive</string>
+    <string name="banner_size_banner">Banner · 320 × 50</string>
+    <string name="banner_size_large_banner">Large banner · 320 × 100</string>
+    <string name="banner_size_medium_rectangle">Medium rectangle · 300 × 250</string>
+    <string name="banner_size_full_banner">Full banner · 468 × 60</string>
+    <string name="banner_size_leaderboard">Leaderboard · 728 × 90</string>
+
+    <string name="ad_status_initializing_title">Initializing SDK</string>
+    <string name="ad_status_initializing_detail">Waiting before requesting a banner.</string>
+    <string name="ad_status_loading_title">Loading banner</string>
+    <string name="ad_status_loading_detail">Requesting %1$s.</string>
+    <string name="ad_status_loaded_title">Banner loaded</string>
+    <string name="ad_status_loaded_detail">%1$s is visible.</string>
+    <string name="ad_status_load_failed_title">Load failed</string>
+    <string name="ad_status_initialization_failed_title">Initialization failed</string>
+    <string name="ad_status_unknown_error">No additional error details were provided.</string>
+    <string name="ad_loading_content_description">Loading banner</string>
+
+    <string name="reload_banner">Reload</string>
 </resources>

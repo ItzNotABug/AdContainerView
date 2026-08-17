@@ -1,11 +1,35 @@
+# IDE
+.idea/
 *.iml
-.gradle
-gradle.properties
-local.properties
-.idea
+captures/
+
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+**/build/
+
+# Local machine
 .DS_Store
-build
-captures
-.externalNativeBuild
-.cxx
-publish
+local.properties
+*.log
+hs_err_pid*
+
+# Android build artifacts
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.class
+.externalNativeBuild/
+.cxx/
+
+# Signing and secrets
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+secrets.properties
+
+# Local publication output
+publish/
