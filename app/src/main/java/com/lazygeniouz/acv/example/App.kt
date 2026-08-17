@@ -5,6 +5,9 @@ import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import com.google.android.material.color.DynamicColors
 import java.util.concurrent.CompletableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Initializes the sample's theme and the Google Mobile Ads SDK once per process. */
 class App : Application() {
@@ -19,7 +22,7 @@ class App : Application() {
     }
 
     private fun initializeAdsSdkAsync() {
-        Thread({
+        CoroutineScope(Dispatchers.IO).launch {
             runCatching {
                 val initializationConfig = InitializationConfig.Builder(SAMPLE_APP_ID)
                     .build()
@@ -28,7 +31,7 @@ class App : Application() {
             }.onSuccess {
                 adsInitialization.complete(Unit)
             }.onFailure(adsInitialization::completeExceptionally)
-        }, "MobileAdsInitializer").start()
+        }
     }
 
     private companion object {
