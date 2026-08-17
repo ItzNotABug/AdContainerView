@@ -1,7 +1,5 @@
 # AdContainerView
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/685458c0953f4dd0b84956383b491f29)](https://app.codacy.com/gh/ItzNotABug/AdContainerView)
-
 A lifecycle-aware banner wrapper for the
 [GMA Next-Gen SDK](https://developers.google.com/admob/android/next-gen). It creates and
 releases `AdView`, tracks load state, and forwards banner callbacks on the main thread.
