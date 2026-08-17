@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.lazygeniouz:acv:0.5.0'
+    implementation "com.lazygeniouz:acv:$version"
 }
 ```
 
