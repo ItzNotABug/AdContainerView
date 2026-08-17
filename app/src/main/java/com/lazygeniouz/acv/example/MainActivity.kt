@@ -5,7 +5,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         binding = MainBinding.inflate(layoutInflater)
         applySystemBarInsets()
         setContentView(binding.root)
+        hideNavigationBar()
         setupSizeSelector()
 
         binding.adContainerView.setAdLoadCallback(object : AdLoadCallback<BannerAd> {
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                         R.string.ad_status_loaded_detail,
                         getString(selectedSize.label)
                     ),
-                    loading = false
+                    status = AdStatus.LOADED
                 )
                 setControlsEnabled(true)
             }
@@ -47,7 +50,7 @@ class MainActivity : AppCompatActivity() {
                 renderStatus(
                     R.string.ad_status_load_failed_title,
                     errorDetail(adError.message),
-                    loading = false
+                    status = AdStatus.FAILED
                 )
                 setControlsEnabled(true)
             }
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         renderStatus(
             R.string.ad_status_initializing_title,
             getString(R.string.ad_status_initializing_detail),
-            loading = true
+            status = AdStatus.LOADING
         )
 
         (application as App).adsInitialization.whenComplete { _, error ->
@@ -69,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                         renderStatus(
                             R.string.ad_status_initialization_failed_title,
                             errorDetail(error.cause?.message ?: error.message),
-                            loading = false
+                            status = AdStatus.FAILED
                         )
                     }
                 }
@@ -96,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             renderStatus(
                 R.string.ad_status_loading_title,
                 getString(R.string.ad_status_loading_detail, sizeLabel),
-                loading = true
+                status = AdStatus.LOADING
             )
             setControlsEnabled(false)
 
@@ -134,16 +137,30 @@ class MainActivity : AppCompatActivity() {
     private fun renderStatus(
         @StringRes title: Int,
         detail: String,
-        loading: Boolean
+        status: AdStatus
     ) {
         binding.adStatusTitle.setText(title)
         binding.adStatusDetail.text = detail
-        binding.adProgress.isVisible = loading
+        binding.adProgress.isVisible = status == AdStatus.LOADING
+        binding.adStatusIcon.isVisible = status != AdStatus.LOADING
+        when (status) {
+            AdStatus.LOADING -> Unit
+            AdStatus.LOADED -> binding.adStatusIcon.setImageResource(R.drawable.ic_check)
+            AdStatus.FAILED -> binding.adStatusIcon.setImageResource(R.drawable.ic_error)
+        }
     }
 
     private fun errorDetail(message: String?): String =
         message?.takeIf { it.isNotBlank() }
             ?: getString(R.string.ad_status_unknown_error)
+
+    private fun hideNavigationBar() {
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.navigationBars())
+        }
+    }
 
     private fun applySystemBarInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
@@ -166,5 +183,11 @@ class MainActivity : AppCompatActivity() {
         MEDIUM_RECTANGLE(R.string.banner_size_medium_rectangle, 300),
         FULL_BANNER(R.string.banner_size_full_banner, 468),
         LEADERBOARD(R.string.banner_size_leaderboard, 728)
+    }
+
+    private enum class AdStatus {
+        LOADING,
+        LOADED,
+        FAILED
     }
 }

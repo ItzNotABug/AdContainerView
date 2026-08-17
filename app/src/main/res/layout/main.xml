@@ -83,16 +83,30 @@
                     android:paddingEnd="8dp"
                     android:paddingBottom="12dp">
 
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/ad_progress"
+                    <FrameLayout
                         android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="@string/ad_loading_content_description"
-                        android:indeterminate="true"
-                        app:indicatorColor="?attr/colorPrimary"
-                        app:indicatorSize="28dp"
-                        app:trackColor="?attr/colorSecondaryContainer"
-                        app:trackThickness="3dp" />
+                        android:layout_height="40dp">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/ad_progress"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:contentDescription="@string/ad_loading_content_description"
+                            android:indeterminate="true"
+                            app:indicatorColor="?attr/colorPrimary"
+                            app:indicatorSize="28dp"
+                            app:trackColor="?attr/colorSecondaryContainer"
+                            app:trackThickness="3dp" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ad_status_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:importantForAccessibility="no"
+                            android:padding="8dp"
+                            android:visibility="invisible"
+                            app:srcCompat="@drawable/ic_check" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -106,6 +120,8 @@
                             android:id="@+id/ad_status_title"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
                             android:text="@string/ad_status_initializing_title"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="?attr/colorOnSurface" />
@@ -115,6 +131,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
                             android:text="@string/ad_status_initializing_detail"
                             android:textAppearance="?attr/textAppearanceBodySmall"
                             android:textColor="?attr/colorOnSurfaceVariant" />
@@ -134,17 +152,10 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.card.MaterialCardView
-        style="@style/Widget.Material3.CardView.Filled"
+    <com.lazygeniouz.acv.AdContainerView
+        android:id="@+id/ad_container_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
-
-        <com.lazygeniouz.acv.AdContainerView
-            android:id="@+id/ad_container_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:acv_adSize="LARGE_ADAPTIVE"
-            app:acv_autoLoad="false" />
-    </com.google.android.material.card.MaterialCardView>
+        app:acv_adSize="LARGE_ADAPTIVE"
+        app:acv_autoLoad="false" />
 </LinearLayout>
