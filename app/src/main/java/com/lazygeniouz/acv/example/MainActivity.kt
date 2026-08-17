@@ -21,12 +21,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainBinding
     private var selectedSize = BannerSize.LARGE_ADAPTIVE
 
-    private val availableSizes by lazy {
-        BannerSize.entries.filter {
-            it.minimumWidthDp <= resources.configuration.screenWidthDp
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -84,6 +78,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSizeSelector() {
+        val availableSizes = BannerSize.entries.filter {
+            it.minimumWidthDp <= resources.configuration.screenWidthDp
+        }
         val labels = availableSizes.map { getString(it.label) }
         binding.adSizeSelector.setSimpleItems(labels.toTypedArray())
         binding.adSizeSelector.setText(labels.first(), false)
