@@ -1,13 +1,16 @@
+@file:Suppress("unused")
+
 package com.lazygeniouz.acv.base
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.view.View
+import android.view.View.VISIBLE
 import android.widget.RelativeLayout
 import androidx.annotation.Keep
 import androidx.annotation.MainThread
+import androidx.core.graphics.drawable.toDrawable
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
@@ -44,7 +47,7 @@ open class BaseAd @JvmOverloads constructor(
     internal var adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
 
     internal var parentMayHaveAListView = false
-    internal val transparent = ColorDrawable(Color.TRANSPARENT)
+    internal val transparent = Color.TRANSPARENT.toDrawable()
 
     /** The current load callback, replaced by [setAdLoadCallback]. */
     protected var loadCallback: AdLoadCallback<BannerAd>? = null
@@ -188,6 +191,7 @@ open class BaseAd @JvmOverloads constructor(
     private fun resolveAdSize(value: Int): AdSize = when (value) {
         XML_AD_SIZE_LARGE_ADAPTIVE,
         XML_AD_SIZE_SMART_BANNER -> getAdaptiveAdSize()
+
         XML_AD_SIZE_BANNER -> AdSize.BANNER
         XML_AD_SIZE_FULL_BANNER -> AdSize.FULL_BANNER
         XML_AD_SIZE_LARGE_BANNER -> AdSize.LARGE_BANNER
@@ -209,6 +213,7 @@ open class BaseAd @JvmOverloads constructor(
         XML_AD_SIZE_LARGE_BANNER,
         XML_AD_SIZE_LEADERBOARD,
         XML_AD_SIZE_MEDIUM_RECTANGLE -> true
+
         else -> false
     }
 
