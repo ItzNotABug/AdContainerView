@@ -33,3 +33,4 @@ secrets.properties
 
 # Local publication output
 publish/
+publish.sh
