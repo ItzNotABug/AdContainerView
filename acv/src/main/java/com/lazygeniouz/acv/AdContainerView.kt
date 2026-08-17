@@ -123,8 +123,8 @@ class AdContainerView @JvmOverloads constructor(
         newAdView = adView
 
         val layoutParams = LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.WRAP_CONTENT
         ).apply {
             addRule(CENTER_IN_PARENT)
         }

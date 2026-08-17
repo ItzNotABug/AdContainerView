@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
                 .coerceAtLeast(1)
             AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, widthDp)
         }
+
         BannerSize.BANNER -> AdSize.BANNER
         BannerSize.LARGE_BANNER -> AdSize.LARGE_BANNER
         BannerSize.MEDIUM_RECTANGLE -> AdSize.MEDIUM_RECTANGLE
@@ -166,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
             val bars = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or
-                    WindowInsetsCompat.Type.displayCutout()
+                        WindowInsetsCompat.Type.displayCutout()
             )
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             windowInsets
