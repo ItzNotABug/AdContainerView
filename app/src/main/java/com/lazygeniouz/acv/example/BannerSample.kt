@@ -1,6 +1,5 @@
 package com.lazygeniouz.acv.example
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,14 +32,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -49,11 +49,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
-import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.lazygeniouz.acv.AdContainerView
 import com.lazygeniouz.acv.compose.AdContainer
-import com.lazygeniouz.acv.compose.AdaptiveAdContainer
+import com.lazygeniouz.acv.compose.AdContainerLoadState
+import com.lazygeniouz.acv.compose.AdContainerState
+import com.lazygeniouz.acv.compose.rememberAdContainerState
 
 @Composable
 internal fun BannerSample(initializationResult: Result<Unit>?) {
@@ -62,13 +62,13 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
+        val availableWidthDp = maxWidth.value.toInt().coerceAtLeast(1)
         val availableSizes = remember(maxWidth) {
             BannerSize.entries.filter { it.minimumWidthDp <= maxWidth.value }
         }
         var selectedSize by rememberSaveable { mutableStateOf(BannerSize.LARGE_ADAPTIVE) }
-        var reloadKey by rememberSaveable { mutableIntStateOf(0) }
-        var loadState by remember { mutableStateOf(LoadState.LOADING) }
-        var loadError by remember { mutableStateOf<String?>(null) }
+        val adContainerState = rememberAdContainerState()
+        val adLoadState = adContainerState.loadState
 
         LaunchedEffect(availableSizes) {
             if (selectedSize !in availableSizes) {
@@ -99,7 +99,8 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
 
                 val controlsEnabled = initializationResult?.isSuccess == true &&
                     selectedSize in availableSizes &&
-                    loadState != LoadState.LOADING
+                    adLoadState !is AdContainerLoadState.Idle &&
+                    adLoadState !is AdContainerLoadState.Loading
                 BannerSizeSelector(
                     sizes = availableSizes,
                     selectedSize = selectedSize,
@@ -111,11 +112,10 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
                 )
                 StatusRow(
                     initializationResult = initializationResult,
-                    loadState = loadState,
-                    loadError = loadError,
+                    adLoadState = adLoadState,
                     selectedSize = selectedSize,
                     reloadEnabled = controlsEnabled,
-                    onReload = { reloadKey++ },
+                    onReload = adContainerState::reload,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -123,24 +123,11 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
             }
 
             if (initializationResult?.isSuccess == true && selectedSize in availableSizes) {
-                key(selectedSize, reloadKey) {
-                    Banner(
-                        size = selectedSize,
-                        onLoadStarted = {
-                            loadState = LoadState.LOADING
-                            loadError = null
-                        },
-                        onLoaded = {
-                            loadState = LoadState.LOADED
-                            loadError = null
-                        },
-                        onFailed = { error ->
-                            Log.w(TAG, "Banner failed to load: ${error.message}")
-                            loadState = LoadState.FAILED
-                            loadError = error.message.takeIf(String::isNotBlank)
-                        }
-                    )
-                }
+                Banner(
+                    size = selectedSize,
+                    state = adContainerState,
+                    availableWidthDp = availableWidthDp
+                )
             }
         }
     }
@@ -149,33 +136,31 @@ internal fun BannerSample(initializationResult: Result<Unit>?) {
 @Composable
 private fun Banner(
     size: BannerSize,
-    onLoadStarted: () -> Unit,
-    onLoaded: (BannerAd) -> Unit,
-    onFailed: (LoadAdError) -> Unit
+    state: AdContainerState,
+    availableWidthDp: Int
 ) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val windowHeight = LocalWindowInfo.current.containerSize.height
+    val adaptiveAdSize = remember(context, availableWidthDp, windowHeight, density.density) {
+        AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, availableWidthDp)
+    }
+    val isAdaptive = size.adSize == null
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        val fixedAdSize = size.adSize
-        if (fixedAdSize == null) {
-            AdaptiveAdContainer(
-                adUnitId = AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID,
-                modifier = Modifier.fillMaxWidth(),
-                onAdLoadStarted = onLoadStarted,
-                onAdLoaded = onLoaded,
-                onAdFailedToLoad = onFailed
-            )
-        } else {
-            AdContainer(
-                adUnitId = AdContainerView.FIXED_SIZE_TEST_AD_ID,
-                adSize = fixedAdSize,
-                modifier = Modifier.wrapContentSize(),
-                onAdLoadStarted = onLoadStarted,
-                onAdLoaded = onLoaded,
-                onAdFailedToLoad = onFailed
-            )
-        }
+        AdContainer(
+            adUnitId = if (isAdaptive) {
+                AdContainerView.ADAPTIVE_SIZE_TEST_AD_ID
+            } else {
+                AdContainerView.FIXED_SIZE_TEST_AD_ID
+            },
+            adSize = size.adSize ?: adaptiveAdSize,
+            state = state,
+            modifier = if (isAdaptive) Modifier.fillMaxWidth() else Modifier.wrapContentSize()
+        )
     }
 }
 
@@ -230,23 +215,24 @@ private fun BannerSizeSelector(
 @Composable
 private fun StatusRow(
     initializationResult: Result<Unit>?,
-    loadState: LoadState,
-    loadError: String?,
+    adLoadState: AdContainerLoadState,
     selectedSize: BannerSize,
     reloadEnabled: Boolean,
     onReload: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val status = when {
-        initializationResult == null -> LoadState.LOADING
-        initializationResult.isFailure -> LoadState.FAILED
-        else -> loadState
+        initializationResult == null -> BannerStatus.LOADING
+        initializationResult.isFailure -> BannerStatus.FAILED
+        adLoadState is AdContainerLoadState.Loaded -> BannerStatus.LOADED
+        adLoadState is AdContainerLoadState.Failed -> BannerStatus.FAILED
+        else -> BannerStatus.LOADING
     }
     val title = when {
         initializationResult == null -> R.string.ad_status_initializing_title
         initializationResult.isFailure -> R.string.ad_status_initialization_failed_title
-        status == LoadState.LOADING -> R.string.ad_status_loading_title
-        status == LoadState.LOADED -> R.string.ad_status_loaded_title
+        status == BannerStatus.LOADING -> R.string.ad_status_loading_title
+        status == BannerStatus.LOADED -> R.string.ad_status_loaded_title
         else -> R.string.ad_status_load_failed_title
     }
     val sizeLabel = stringResource(selectedSize.label)
@@ -255,15 +241,19 @@ private fun StatusRow(
         initializationResult.isFailure -> initializationResult.exceptionOrNull()
             .errorDetail()
             ?: stringResource(R.string.ad_status_unknown_error)
-        status == LoadState.LOADING -> stringResource(
+        status == BannerStatus.LOADING -> stringResource(
             R.string.ad_status_loading_detail,
             sizeLabel
         )
-        status == LoadState.LOADED -> stringResource(
+        status == BannerStatus.LOADED -> stringResource(
             R.string.ad_status_loaded_detail,
             sizeLabel
         )
-        else -> loadError ?: stringResource(R.string.ad_status_unknown_error)
+        else -> (adLoadState as? AdContainerLoadState.Failed)
+            ?.error
+            ?.message
+            ?.takeIf(String::isNotBlank)
+            ?: stringResource(R.string.ad_status_unknown_error)
     }
 
     Row(
@@ -279,17 +269,17 @@ private fun StatusRow(
             contentAlignment = Alignment.Center
         ) {
             when (status) {
-                LoadState.LOADING -> CircularProgressIndicator(
+                BannerStatus.LOADING -> CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 3.dp
                 )
-                LoadState.LOADED -> Icon(
+                BannerStatus.LOADED -> Icon(
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-                LoadState.FAILED -> Icon(
+                BannerStatus.FAILED -> Icon(
                     painter = painterResource(R.drawable.ic_error),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
@@ -323,7 +313,7 @@ private fun StatusRow(
     }
 }
 
-private enum class LoadState {
+private enum class BannerStatus {
     LOADING,
     LOADED,
     FAILED
@@ -346,5 +336,3 @@ private fun Throwable?.errorDetail(): String? = this
     ?.let { it.cause ?: it }
     ?.message
     ?.takeIf(String::isNotBlank)
-
-private const val TAG = "AdContainerSample"

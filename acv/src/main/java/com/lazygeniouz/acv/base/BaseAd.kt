@@ -84,10 +84,10 @@ open class BaseAd @JvmOverloads constructor(
      * Replaces the callback that receives the initial banner load result.
      * Callbacks registered through this view are delivered on the main thread.
      *
-     * @param callback the load callback to receive.
+     * @param callback the load callback to receive, or null to clear it.
      */
     @MainThread
-    fun setAdLoadCallback(callback: AdLoadCallback<BannerAd>) {
+    fun setAdLoadCallback(callback: AdLoadCallback<BannerAd>?) {
         loadCallback = callback
     }
 
@@ -102,10 +102,10 @@ open class BaseAd @JvmOverloads constructor(
      * events.
      * Callbacks registered through this view are delivered on the main thread.
      *
-     * @param callback the event callback to receive.
+     * @param callback the event callback to receive, or null to clear it.
      */
     @MainThread
-    fun setAdEventCallback(callback: BannerAdEventCallback) {
+    fun setAdEventCallback(callback: BannerAdEventCallback?) {
         eventCallback = callback
     }
 
@@ -119,10 +119,10 @@ open class BaseAd @JvmOverloads constructor(
      * Replaces the callback that receives automatic banner refresh results.
      * Callbacks registered through this view are delivered on the main thread.
      *
-     * @param callback the refresh callback to receive.
+     * @param callback the refresh callback to receive, or null to clear it.
      */
     @MainThread
-    fun setAdRefreshCallback(callback: BannerAdRefreshCallback) {
+    fun setAdRefreshCallback(callback: BannerAdRefreshCallback?) {
         refreshCallback = callback
     }
 

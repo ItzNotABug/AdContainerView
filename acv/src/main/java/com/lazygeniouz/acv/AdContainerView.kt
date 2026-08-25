@@ -42,9 +42,13 @@ class AdContainerView @JvmOverloads constructor(
     private val hostLifecycleObserver = HostLifecycleObserver()
     private var observedLifecycle: Lifecycle? = null
     private var autoLoadPending = false
+    private var activeLoadCallback: AdLoadCallback<BannerAd>? = null
+    private var activeBannerAd: BannerAd? = null
+    private var pendingAdRequest: BannerAdRequest? = null
 
     /**
-     * Loads a banner with the configured ad unit and size.
+     * Loads a banner with the configured ad unit and size. Subsequent requests reuse the current
+     * [AdView]. If a load is already active, only the latest pending request is retained.
      * A skipped request reports [LoadAdError.ErrorCode.CANCELLED] and leaves the current banner
      * and request configuration unchanged.
      *
@@ -68,8 +72,9 @@ class AdContainerView @JvmOverloads constructor(
     )
 
     /**
-     * Loads a customized Next-Gen [BannerAdRequest]. The request's ad unit ID and
-     * ad size become this container's current values.
+     * Loads a customized Next-Gen [BannerAdRequest], reusing the current [AdView] for subsequent
+     * requests. If a load is already active, only the latest pending request is retained. The
+     * request's ad unit ID and ad size become this container's current values.
      * A skipped request reports [LoadAdError.ErrorCode.CANCELLED] and leaves the current banner
      * and request configuration unchanged.
      *
@@ -113,13 +118,27 @@ class AdContainerView @JvmOverloads constructor(
         adUnitId = adRequest.adUnitId
         adSize = adRequest.adSize
 
-        destroyAd()
-        isAdLoading = true
-
-        val adView = AdView(context).also {
-            it.visibility = View.GONE
-            it.background = transparent
+        val adView = newAdView ?: createAdView()
+        if (isAdLoading) {
+            pendingAdRequest = adRequest
+            logDebug("Queued the latest banner request until the current load finishes.")
+            return
         }
+
+        startAdLoad(adView, adRequest)
+    }
+
+    private fun startAdLoad(adView: AdView, adRequest: BannerAdRequest) {
+        isAdLoading = true
+        val callback = createLoadCallback(adView)
+        activeLoadCallback = callback
+        logDebug("Loading banner ($adSize).")
+        adView.loadAd(adRequest, callback)
+    }
+
+    private fun createAdView(): AdView = AdView(context).also { adView ->
+        adView.visibility = View.GONE
+        adView.background = transparent
         newAdView = adView
 
         val layoutParams = LayoutParams(
@@ -129,21 +148,23 @@ class AdContainerView @JvmOverloads constructor(
             addRule(CENTER_IN_PARENT)
         }
         addView(adView, layoutParams)
-        logDebug("Loading banner ($adSize).")
-        adView.loadAd(adRequest, createLoadCallback(adView))
     }
 
     private fun createLoadCallback(adView: AdView): AdLoadCallback<BannerAd> =
         object : AdLoadCallback<BannerAd> {
             override fun onAdLoaded(ad: BannerAd) {
-                attachAdCallbacks(adView, ad)
                 runOnMainThread {
-                    if (newAdView === adView) {
-                        isAdLoading = false
+                    if (newAdView === adView && activeLoadCallback === this) {
+                        val previousAd = activeBannerAd
+                        activeBannerAd = ad
+                        if (previousAd !== ad) previousAd?.destroy()
+                        attachAdCallbacks(adView, ad)
                         isAdLoaded = true
                         adView.visibility = View.VISIBLE
+                        if (pendingAdRequest == null) isAdLoading = false
                         logDebug("Banner loaded.")
                         loadCallback?.onAdLoaded(ad)
+                        loadPendingRequest(adView, this)
                     } else {
                         ad.destroy()
                     }
@@ -152,68 +173,90 @@ class AdContainerView @JvmOverloads constructor(
 
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 runOnMainThread {
-                    if (newAdView === adView) {
-                        isAdLoading = false
-                        isAdLoaded = false
-                        adView.visibility = View.GONE
+                    if (newAdView === adView && activeLoadCallback === this) {
+                        val currentBanner = adView.getBannerAd()
+                        isAdLoaded = currentBanner != null && currentBanner === activeBannerAd
+                        if (!isAdLoaded) {
+                            activeBannerAd?.destroy()
+                            activeBannerAd = null
+                        }
+                        adView.visibility = if (isAdLoaded) View.VISIBLE else View.GONE
+                        if (pendingAdRequest == null) isAdLoading = false
                         logDebug("Banner load failed (${adError.code}): ${adError.message}")
                         loadCallback?.onAdFailedToLoad(adError)
+                        loadPendingRequest(adView, this)
                     }
                 }
             }
         }
 
+    private fun loadPendingRequest(
+        adView: AdView,
+        completedCallback: AdLoadCallback<BannerAd>
+    ) {
+        if (newAdView !== adView || activeLoadCallback !== completedCallback) return
+
+        val request = pendingAdRequest ?: return
+        pendingAdRequest = null
+        startAdLoad(adView, request)
+    }
+
     private fun attachAdCallbacks(adView: AdView, ad: BannerAd) {
         ad.adEventCallback = object : BannerAdEventCallback {
-            override fun onAdClicked() = dispatchFor(adView) {
+            override fun onAdClicked() = dispatchFor(adView, ad) {
                 eventCallback?.onAdClicked()
             }
 
-            override fun onAdImpression() = dispatchFor(adView) {
+            override fun onAdImpression() = dispatchFor(adView, ad) {
                 eventCallback?.onAdImpression()
             }
 
-            override fun onAdPaid(value: AdValue) = dispatchFor(adView) {
+            override fun onAdPaid(value: AdValue) = dispatchFor(adView, ad) {
                 eventCallback?.onAdPaid(value)
             }
 
-            override fun onAdShowedFullScreenContent() = dispatchFor(adView) {
+            override fun onAdShowedFullScreenContent() = dispatchFor(adView, ad) {
                 eventCallback?.onAdShowedFullScreenContent()
             }
 
-            override fun onAdDismissedFullScreenContent() = dispatchFor(adView) {
+            override fun onAdDismissedFullScreenContent() = dispatchFor(adView, ad) {
                 eventCallback?.onAdDismissedFullScreenContent()
             }
 
             override fun onAdFailedToShowFullScreenContent(
                 fullScreenContentError: FullScreenContentError
-            ) = dispatchFor(adView) {
+            ) = dispatchFor(adView, ad) {
                 eventCallback?.onAdFailedToShowFullScreenContent(fullScreenContentError)
             }
 
-            override fun onAppEvent(name: String, data: String?) = dispatchFor(adView) {
+            override fun onAppEvent(name: String, data: String?) = dispatchFor(adView, ad) {
                 eventCallback?.onAppEvent(name, data)
             }
         }
 
         ad.bannerAdRefreshCallback = object : BannerAdRefreshCallback {
-            override fun onAdRefreshed() = dispatchFor(adView) {
+            override fun onAdRefreshed() = dispatchFor(adView, ad) {
                 isAdLoaded = true
                 adView.visibility = View.VISIBLE
                 logDebug("Banner refreshed.")
                 refreshCallback?.onAdRefreshed()
             }
 
-            override fun onAdFailedToRefresh(adError: LoadAdError) = dispatchFor(adView) {
+            override fun onAdFailedToRefresh(adError: LoadAdError) = dispatchFor(adView, ad) {
                 logDebug("Banner refresh failed (${adError.code}): ${adError.message}")
                 refreshCallback?.onAdFailedToRefresh(adError)
             }
         }
     }
 
-    private fun dispatchFor(adView: AdView, action: () -> Unit) {
+    private fun dispatchFor(adView: AdView, ad: BannerAd, action: () -> Unit) {
         runOnMainThread {
-            if (newAdView === adView) action()
+            if (newAdView === adView &&
+                activeBannerAd === ad &&
+                adView.getBannerAd() === ad
+            ) {
+                action()
+            }
         }
     }
 
@@ -245,6 +288,9 @@ class AdContainerView @JvmOverloads constructor(
     @MainThread
     fun destroyAd() {
         autoLoadPending = false
+        activeLoadCallback = null
+        activeBannerAd = null
+        pendingAdRequest = null
         newAdView?.destroy()
         newAdView = null
         isAdLoading = false
