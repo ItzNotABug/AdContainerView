@@ -39,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -138,7 +140,9 @@ private fun Banner(
     availableWidthDp: Int
 ) {
     val context = LocalContext.current
-    val adaptiveAdSize = remember(context, availableWidthDp) {
+    val density = LocalDensity.current
+    val windowHeight = LocalWindowInfo.current.containerSize.height
+    val adaptiveAdSize = remember(context, availableWidthDp, windowHeight, density.density) {
         AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, availableWidthDp)
     }
     val isAdaptive = size.adSize == null
