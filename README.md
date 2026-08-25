@@ -5,7 +5,7 @@ A lifecycle-aware banner wrapper for the
 releases `AdView`, tracks load state, and forwards banner callbacks on the main thread.
 
 > [!IMPORTANT]
-> Version 0.5.1 uses GMA Next-Gen SDK 1.3.1. It requires Android API 24+, `compileSdk` 35+,
+> Version 0.5.2 uses GMA Next-Gen SDK 1.3.1. It requires Android API 24+, `compileSdk` 35+,
 > Kotlin 1.9+ for Kotlin apps, and completed SDK initialization before the first ad request.
 
 ## Install
@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-def version = '0.5.1'
+def version = '0.5.2'
 
 dependencies {
     // Views
@@ -102,17 +102,26 @@ adaptive banners from the available Compose width and destroys the underlying vi
 composition. It is built against Compose UI 1.10.6 to retain Kotlin 1.9 consumer compatibility:
 
 ```kotlin
+val state = rememberAdContainerState()
+
 AdaptiveAdContainer(
     adUnitId = BANNER_AD_UNIT_ID,
+    state = state,
     modifier = Modifier.fillMaxWidth()
 )
+
+TextButton(onClick = state::reload) {
+    Text("Reload")
+}
 ```
 
 Use `AdContainer` when supplying a fixed size or customized `BannerAdRequest`. Remember customized
 requests that should remain stable across recomposition; a different request instance reloads the
-banner. Initialize Next-Gen before placing either composable in the composition. Optional load
-lambdas report request starts, success, and failure; configure event and refresh callbacks on the
-loaded `BannerAd`.
+banner. `AdContainerState.loadState` reports idle, loading, loaded, and failed states. State-aware
+overloads also accept `AdLoadCallback<BannerAd>`, `BannerAdEventCallback`, and
+`BannerAdRefreshCallback`. `reload()` calls `loadAdView()` on the existing container; Compose does not
+recreate it. Initialize Next-Gen before placing either composable in composition; Compose handles
+cleanup when it leaves.
 
 ## Configuration
 
@@ -155,10 +164,11 @@ Both overloads accept `parentHasListView` and `showOnCondition` options. Setting
 Next-Gen separates banner callbacks by purpose:
 
 - `setAdLoadCallback()` — initial load success or failure
-- `setAdEventCallback()` — click, impression, paid, and full-screen events
+- `setAdEventCallback()` — click, impression, paid, app, and full-screen events
 - `setAdRefreshCallback()` — automatic refresh success or failure
 
-AdContainerView delivers callbacks registered through these methods on the main thread.
+AdContainerView delivers callbacks registered through these methods on the main thread. Pass `null`
+to clear a callback.
 
 ## API
 
