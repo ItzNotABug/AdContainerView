@@ -155,7 +155,9 @@ class AdContainerView @JvmOverloads constructor(
             override fun onAdLoaded(ad: BannerAd) {
                 runOnMainThread {
                     if (newAdView === adView && activeLoadCallback === this) {
+                        val previousAd = activeBannerAd
                         activeBannerAd = ad
+                        if (previousAd !== ad) previousAd?.destroy()
                         attachAdCallbacks(adView, ad)
                         isAdLoaded = true
                         adView.visibility = View.VISIBLE

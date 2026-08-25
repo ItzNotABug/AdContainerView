@@ -17,13 +17,13 @@ sealed interface AdContainerLoadState {
     /** No ad container is currently attached to this state. */
     data object Idle : AdContainerLoadState
 
-    /** A banner request is in progress. */
+    /** A banner request is in progress; a previously loaded banner may remain visible. */
     data object Loading : AdContainerLoadState
 
     /** The latest banner request completed successfully. */
     data object Loaded : AdContainerLoadState
 
-    /** The latest banner request failed. */
+    /** The latest banner request failed; a previously loaded banner may remain visible. */
     data class Failed(val error: LoadAdError) : AdContainerLoadState
 }
 

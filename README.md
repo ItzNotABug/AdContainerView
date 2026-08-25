@@ -121,8 +121,9 @@ requests that should remain stable across recomposition; a different request ins
 banner. `AdContainerState.loadState` reports idle, loading, loaded, and failed states. State-aware
 overloads also accept `AdLoadCallback<BannerAd>`, `BannerAdEventCallback`, and
 `BannerAdRefreshCallback`. `reload()` calls `loadAdView()` on the existing container; Compose does not
-recreate it. Initialize Next-Gen before placing either composable in composition; Compose handles
-cleanup when it leaves.
+recreate it. Loading and failed states describe the latest request; a previous banner may remain
+visible. Initialize Next-Gen before placing either composable in composition; Compose handles cleanup
+when it leaves.
 
 ## Configuration
 

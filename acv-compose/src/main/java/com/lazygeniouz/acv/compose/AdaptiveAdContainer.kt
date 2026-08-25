@@ -110,7 +110,7 @@ private fun AdaptiveAdContainerContent(
             .takeIf { it.isFinite() && it > 0f }
             ?.toInt()
             ?: windowWidthDp
-        val adSize = remember(context, availableWidthDp, windowSize, density) {
+        val adSize = remember(context, availableWidthDp) {
             AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, availableWidthDp)
         }
 
