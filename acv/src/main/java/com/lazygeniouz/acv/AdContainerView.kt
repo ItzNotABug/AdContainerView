@@ -176,7 +176,10 @@ class AdContainerView @JvmOverloads constructor(
                     if (newAdView === adView && activeLoadCallback === this) {
                         val currentBanner = adView.getBannerAd()
                         isAdLoaded = currentBanner != null && currentBanner === activeBannerAd
-                        if (!isAdLoaded) activeBannerAd = null
+                        if (!isAdLoaded) {
+                            activeBannerAd?.destroy()
+                            activeBannerAd = null
+                        }
                         adView.visibility = if (isAdLoaded) View.VISIBLE else View.GONE
                         if (pendingAdRequest == null) isAdLoading = false
                         logDebug("Banner load failed (${adError.code}): ${adError.message}")
