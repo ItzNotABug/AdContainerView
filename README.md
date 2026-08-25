@@ -5,8 +5,9 @@ A lifecycle-aware banner wrapper for the
 releases `AdView`, tracks load state, and forwards banner callbacks on the main thread.
 
 > [!IMPORTANT]
-> Version 0.5.2 uses GMA Next-Gen SDK 1.3.1. It requires Android API 24+, `compileSdk` 35+,
-> Kotlin 1.9+ for Kotlin apps, and completed SDK initialization before the first ad request.
+> The 0.5.x release line uses GMA Next-Gen SDK 1.3.1 and requires Android API 24+,
+> `compileSdk` 35+, Kotlin 1.9+ for Kotlin apps, and completed SDK initialization before the first
+> ad request.
 
 ## Install
 
