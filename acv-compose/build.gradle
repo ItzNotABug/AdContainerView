@@ -26,8 +26,8 @@ android {
 
 kotlin {
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_1_9
-        apiVersion = KotlinVersion.KOTLIN_1_9
+        apiVersion = KotlinVersion.KOTLIN_2_2
+        languageVersion = KotlinVersion.KOTLIN_2_2
     }
 }
 
