@@ -93,7 +93,7 @@ class AdContainerView @JvmOverloads constructor(
         if (showOnCondition?.invoke() == false) {
             logDebug(showOnConditionMessage)
             notifyLoadFailure(
-                LoadAdError(LoadAdError.ErrorCode.CANCELLED, showOnConditionMessage)
+                LoadAdError(LoadAdError.ErrorCode.CANCELLED, showOnConditionMessage, null)
             )
             return
         }
@@ -103,7 +103,7 @@ class AdContainerView @JvmOverloads constructor(
                 "Ad request skipped because GMA Next-Gen is not initialized. " +
                         "Await MobileAds.initialize() before calling loadAdView()."
             logDebug(message)
-            notifyLoadFailure(LoadAdError(LoadAdError.ErrorCode.CANCELLED, message))
+            notifyLoadFailure(LoadAdError(LoadAdError.ErrorCode.CANCELLED, message, null))
             return
         }
 
