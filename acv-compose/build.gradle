@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = 'com.lazygeniouz.acv.compose'
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -26,15 +26,15 @@ android {
 
 kotlin {
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_1_9
-        apiVersion = KotlinVersion.KOTLIN_1_9
+        apiVersion = KotlinVersion.KOTLIN_2_2
+        languageVersion = KotlinVersion.KOTLIN_2_2
     }
 }
 
 dependencies {
     api project(':acv')
-    api 'androidx.compose.ui:ui:1.10.6'
-    implementation 'androidx.compose.foundation:foundation-layout:1.10.6'
+    api 'androidx.compose.ui:ui:1.12.1'
+    implementation 'androidx.compose.foundation:foundation-layout:1.12.1'
 }
 
 mavenPublishing {
