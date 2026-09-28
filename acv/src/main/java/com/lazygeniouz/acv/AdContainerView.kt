@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
-import android.view.View
 import androidx.annotation.Keep
 import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
@@ -137,7 +136,7 @@ class AdContainerView @JvmOverloads constructor(
     }
 
     private fun createAdView(): AdView = AdView(context).also { adView ->
-        adView.visibility = View.GONE
+        adView.visibility = GONE
         adView.background = transparent
         newAdView = adView
 
@@ -160,7 +159,7 @@ class AdContainerView @JvmOverloads constructor(
                         if (previousAd !== ad) previousAd?.destroy()
                         attachAdCallbacks(adView, ad)
                         isAdLoaded = true
-                        adView.visibility = View.VISIBLE
+                        adView.visibility = VISIBLE
                         if (pendingAdRequest == null) isAdLoading = false
                         logDebug("Banner loaded.")
                         loadCallback?.onAdLoaded(ad)
@@ -180,7 +179,7 @@ class AdContainerView @JvmOverloads constructor(
                             activeBannerAd?.destroy()
                             activeBannerAd = null
                         }
-                        adView.visibility = if (isAdLoaded) View.VISIBLE else View.GONE
+                        adView.visibility = if (isAdLoaded) VISIBLE else GONE
                         if (pendingAdRequest == null) isAdLoading = false
                         logDebug("Banner load failed (${adError.code}): ${adError.message}")
                         loadCallback?.onAdFailedToLoad(adError)
@@ -237,7 +236,7 @@ class AdContainerView @JvmOverloads constructor(
         ad.bannerAdRefreshCallback = object : BannerAdRefreshCallback {
             override fun onAdRefreshed() = dispatchFor(adView, ad) {
                 isAdLoaded = true
-                adView.visibility = View.VISIBLE
+                adView.visibility = VISIBLE
                 logDebug("Banner refreshed.")
                 refreshCallback?.onAdRefreshed()
             }
