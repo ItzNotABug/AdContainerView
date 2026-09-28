@@ -5,9 +5,10 @@ A lifecycle-aware banner wrapper for the
 releases `AdView`, tracks load state, and forwards banner callbacks on the main thread.
 
 > [!IMPORTANT]
-> The 0.5.x release line uses GMA Next-Gen SDK 1.3.1 and requires Android API 24+,
-> `compileSdk` 35+, Kotlin 1.9+ for Kotlin apps, and completed SDK initialization before the first
-> ad request.
+> Requires Android API 24+ and a completed `MobileAds.initialize()` before the first ad request.
+> Each release builds against the current stable Kotlin, AGP and Next-Gen SDK; if you are pinned to
+> an older toolchain, check the [releases](https://github.com/ItzNotABug/AdContainerView/releases)
+> for a version that matches.
 
 ## Install
 
@@ -19,7 +20,7 @@ repositories {
     mavenCentral()
 }
 
-def version = '0.5.2'
+def version = '0.5.3'
 
 dependencies {
     // Views
@@ -100,7 +101,7 @@ Next-Gen setup. Initialize Next-Gen in a background coroutine instead.
 
 The Compose artifact is a thin `AndroidView` wrapper around `AdContainerView`. It measures large
 adaptive banners from the available Compose width and destroys the underlying view when it leaves
-composition. It is built against Compose UI 1.10.6 to retain Kotlin 1.9 consumer compatibility:
+composition:
 
 ```kotlin
 val state = rememberAdContainerState()
@@ -120,9 +121,11 @@ Use `AdContainer` when supplying a fixed size or customized `BannerAdRequest`. R
 requests that should remain stable across recomposition; a different request instance reloads the
 banner. `AdContainerState.loadState` reports idle, loading, loaded, and failed states. State-aware
 overloads also accept `AdLoadCallback<BannerAd>`, `BannerAdEventCallback`, and
-`BannerAdRefreshCallback`. `reload()` calls `loadAdView()` on the existing container; Compose does not
+`BannerAdRefreshCallback`. `reload()` calls `loadAdView()` on the existing container; Compose does
+not
 recreate it. Loading and failed states describe the latest request; a previous banner may remain
-visible. Initialize Next-Gen before placing either composable in composition; Compose handles cleanup
+visible. Initialize Next-Gen before placing either composable in composition; Compose handles
+cleanup
 when it leaves.
 
 ## Configuration
@@ -184,7 +187,7 @@ to clear a callback.
 
 | 0.4.x                          | 0.5.x                                      |
 |--------------------------------|--------------------------------------------|
-| `play-services-ads`            | `ads-mobile-sdk:1.3.1`                     |
+| `play-services-ads`            | `ads-mobile-sdk`                           |
 | Minimum API 21                 | Minimum API 24                             |
 | Manifest app ID                | `InitializationConfig.Builder(appId)`      |
 | `AdRequest`                    | `BannerAdRequest` with ad unit ID and size |
